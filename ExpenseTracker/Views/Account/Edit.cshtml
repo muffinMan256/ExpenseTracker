@@ -1,0 +1,26 @@
+﻿@model AppUser 
+
+
+<section>
+    <form id="account-login" asp-action="Update" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+        <div class="form-floating mb-3 text-black">
+            <input asp-for="Email" class="form-control" autocomplete="username" aria-required="true" placeholder="@Model.Email"/>
+            <label asp-for="Email" class="form-label">Email Address</label>
+        </div>
+        <div class="form-floating mb-3 text-black">
+            <input asp-for="FirstName" class="form-control" required placeholder="@Model.FirstName" />
+            <label asp-for="FirstName" class="form-label">Enter your First Name</label>
+        </div>
+        <div class="form-floating mb-3 text-black">
+            <input asp-for="LastName" class="form-control" required placeholder="@Model.LastName" />
+            <label asp-for="LastName" class="form-label">Enter your Last Name</label>
+        </div>
+        <div class="form-floating mb-3 text-black">
+            <input asp-for="Birthday" class="form-control" type="date" required placeholder="@Model.Birthday" />
+            <label asp-for="Birthday" class="form-label">Enter your Birthday</label>
+        </div>
+        <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Update User</button>
+
+    </form>
+</section>

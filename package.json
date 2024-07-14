@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "@joeattardi/emoji-button": "^4.6.4"
+    "@joeattardi/emoji-button": "^4.6.4",
+    "chart.js": "^4.4.3"
   }
 }

@@ -5,6 +5,7 @@ namespace ExpenseTracker.Models
 {
     public class Category
     {
+
         [Key] public int CategoryId { get; set; }
 
         [Required(ErrorMessage = "Title is requierd.")]
@@ -14,8 +15,16 @@ namespace ExpenseTracker.Models
 
         [Column(TypeName = "nvarchar(10)")] public string Type { get; set; } = "Expense";
 
+        [Column(TypeName = "bit")] public string? Recurring { get; set; }
+
+        public DateTime? CreationDate { get; set; } = DateTime.Now;
+
+        [Column(TypeName = "nvarchar(50)")] public string? Note { get; set; }
+
+        [Column(TypeName = "nvarchar(10)")] public string? Priority { get; set; }
+
         [NotMapped]
-        public string? TitleWithIcon
+        public string TitleWithIcon
         {
             get
             {

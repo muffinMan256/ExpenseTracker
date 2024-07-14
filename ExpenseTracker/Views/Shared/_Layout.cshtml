@@ -5,30 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ExpenseTracker</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    @*<link rel="stylesheet" href="https://cdn.syncfusion.com/ej2/26.1.35/material.css" />*@  
     <link href="https://cdn.syncfusion.com/ej2/26.1.35/bootstrap5-dark.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/css/dataTables.bootstrap.min.css" integrity="sha512-BMbq2It2D3J17/C7aRklzOODG1IQ3+MHw3ifzBHMBwGO/0yUqYmsStgBjI0z5EYlaDEFnvYV7gNYdD3vFLRKsA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/ExpenseTracker.styles.css" asp-append-version="true" />
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
     <script src="https://cdn.syncfusion.com/ej2/26.1.35/dist/ej2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js" integrity="sha512-BkpSL20WETFylMrcirBahHfSnY++H2O1W+UnEEO4yNIl+jI2+zowyoGJpbtk6bx97fBXf++WJHSSK2MV4ghPcg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+
 </head>
 <body class="e-bigger">
 
 <partial name="_SideBar"/>
 
 <div class="dock-target">
-            <nav class="navbar sticky-top">
-                <div class="container-fluid py-2 px-4">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <div>
-                        <i class="fa-solid fa-bell"></i>
-                        <i class="fa-solid fa-message"></i>
-                        <img class="profile-pic" src="~/profile.png"/>
-                    </div>
-
-                </div>
-            </nav>
+        <!-- Navbar -->
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+            <!-- Left navbar links -->
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                </li>
+                <li class="nav-item d-none d-sm-inline-block">
+                    <a asp-controller="Dashboard" asp-action="Index" class="nav-link"><i class="fas fa-home"></i></a>
+                </li>
+            </ul>
+            <div class="info mt-1 ml-auto">
+                <a class="d-block">@User.Identity.Name</a>
+            </div>
+            @if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                <form asp-controller="Account" asp-action="Logout" class="mx-2">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Logout</button>
+                </form>
+            }
+        </nav>
+        <!-- /.navbar -->
         <div class="main-content">
             <div class="container mt-5">
                 <div class="row justify-content-center">
@@ -52,7 +70,6 @@
                                                     }
                                                 </div>
                                             </div>
-                                            <ejs-breadcrumb id="breadcrumb" separatorTemplate="@Html.Raw("<span class='fa-solid fa-angle-right'></span>")"></ejs-breadcrumb>
                                         </div>
                                     </div>
                                 </div>
@@ -63,13 +80,15 @@
                 </div>
             </div>
         </div>
+</div>
 
-    </div>
-
-
+<script src="https://cdn.datatables.net/v/dt/dt-2.0.8/datatables.min.js"></script>
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
+<script src="lib/admin-lte/js/adminlte.min.js"></script>
+<script src="lib/admin-lte/js/adminlte.min.js.map"></script>
+@await Component.InvokeAsync("Notyf")
 @await RenderSectionAsync("Scripts", required: false)
 <ejs-scripts></ejs-scripts>
 </body>

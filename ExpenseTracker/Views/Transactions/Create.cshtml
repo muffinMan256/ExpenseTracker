@@ -1,0 +1,77 @@
+﻿@model ExpenseTracker.ViewModel.CategoryTransactionCombinedViewModel
+
+<section>
+    <form asp-action="AssignTransactions" asp-controller="Transactions" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row mt-2 justify-content-center">
+        <div class="card card-information">
+            <div class="card-header">
+                <h2> Create a new transaction</h2>
+            </div>
+            <div class="card-body">
+                @*Row1*@
+                <div class="row">
+                    @*Category*@
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-form-label small font-w-700 dark-color m-0px">
+                                Category
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-layer-group"></i></span>
+                                <select class="form-control" asp-for="Transactions.CategoryId" asp-items="@(new SelectList(Model.Categories, "CategoryId", "TitleWithIcon"))">
+                                    <option value="">Select Transaction Category</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    @*Amount*@
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-form-label small font-w-700 dark-color m-0px">
+                                Amount
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-money-bill-1"></i></span>
+                                <input type="number" class="form-control text-box single-line" asp-for="Transactions.Amount" placeholder="Enter the amount of the Transaction"/>
+                            </div>
+                        </div>
+                    </div>
+                    @*Row2*@
+                    <div class="row">
+                        @*Note*@
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-form-label small font-w-700 dark-color m-0px">
+                                    Note
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-comment"></i></span>
+                                    <input type="text" class="form-control text-box single-line" asp-for="Transactions.Note" placeholder="Enter details of the transaction" />
+                                </div>
+                            </div>
+                        </div>
+                        @*Date*@
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-form-label small font-w-700 dark-color m-0px">
+                                    Date
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-calendar"></i></span>
+                                    <input type="datetime-local" class="form-control text-box single-line" asp-for="Transactions.Date" placeholder="Enter the date of the Transaction"/>                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @*Row3*@
+                    <div class="row">
+                        <div class="col-md-12 d-flex justify-content-center">
+                            <button class="btn btn-success mt-2">Create</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </form>
+</section>

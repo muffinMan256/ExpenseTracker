@@ -1,102 +1,77 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-    List<Object> menuItems = new List<Object>();
-
-    menuItems.Add(new
-    {
-        text = "General",
-        separator = true,
-    });
-
-    menuItems.Add(new
-    {
-        text = "Dashboard",
-        url = "/",
-        iconCss = "fa-solid fa-home",
-    });
-
-    menuItems.Add(new
-    {
-        text = "Categories",
-        url = "/Category",
-        iconCss = "fa-solid fa-folder-closed",
-    });
-
-    menuItems.Add(new
-    {
-        text = "Transactions",
-        url = "/Transactions",
-        iconCss = "fa-solid fa-arrow-right-arrow-left"
-    });
-
-    menuItems.Add(new
-    {
-        text = "Extras",
-        separator = true,
-    });
-
-    menuItems.Add(new
-    {
-        text = "Reports",
-        url = "#",
-        iconCss = "fa-solid fa-chart-simple"
-    });
-
-    menuItems.Add(new
-    {
-        text = "Settings",
-        url = "#",
-        iconCss = "fa-solid fa-gear"
-    });
-
-    menuItems.Add(new
-    {
-        text = "Account",
-        separator = true,
-    });
-
-    menuItems.Add(new
-    {
-        text = "Register",
-        url = "/Register",
-        iconCss = "fa-solid fa-id-card"
-    });
-
-    menuItems.Add(new
-    {
-        text = "Login",
-        url = "/Account/Login",
-        iconCss = "fa-solid fa-right-to-bracket"
-    });
-
-
+﻿@{
 }
-<ejs-sidebar id="sidebar" width="290px" enableDock="true" dockSize="100px" target=".dock-target">
-    <e-content-template>
-        
-        <div class="logo-wrapper">
-            <div class="app-log">
-                <img class="profile-pic" src="~/flavicon.ico" />
-            </div>
-            <div class="w-100"></div>
-            <i id="sidebar-toggler" class="fa-solid"></i>
-        </div>
-        
+<!-- Main Sidebar Container -->
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
+    <a href="#" class="brand-link logo-switch">
+        <img src="/flavicon.ico" alt="AdminLTE Docs Logo Large" class="brand-image-xs logo-xl" style="left: 12px">
+    </a>
 
-        <div class="profile-wrapper">
-            <img class="profile-pic" src="~/profile.png" />
-            <div class=" titles d-flex flex-column ps-3">
-                <h6 class="mb-0"> Wallet App</h6>
-                <span class="text-muted">Andrei S.</span>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Sidebar user panel (optional) -->
+@*         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+            <div class="image">
+                <img src="lib/admin-lte/img/user1-128x128.jpg" class="img-circle elevation-2" alt="User Image">
             </div>
-        </div>
-
-        <ejs-menu id="menu" items="menuItems" orientation="Vertical" hamburgerMode="true">
-        </ejs-menu>
-    </e-content-template>
-</ejs-sidebar>
+        </div> *@
+        <!-- Sidebar Menu -->
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+                <!-- Add icons to the links using the .nav-icon class
+                     with font-awesome or any other icon font library -->
+                <li class="nav-item menu-open">
+                    <a class="nav-link active">
+                        <i class="fa-regular fa-credit-card"></i>
+                        <p>
+                            Expenses
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a asp-controller="Transactions" asp-action="Index" class="nav-link">
+                                <i class="fa-solid fa-wallet"></i>
+                                <p>Transactions</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="Category" asp-action="Index" class="nav-link">
+                                <i class="fa-solid fa-list"></i>
+                                <p>Categories</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item menu-open">
+                    <a class="nav-link active">
+                        <i class="fa-solid fa-user"></i>
+                        <p>
+                            Account Management
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a asp-controller="Account" asp-action="Edit" class="nav-link">
+                                <i class="fa-solid fa-user-gear"></i>
+                                <p>Edit Account</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="Account" asp-action=""  class="nav-link">
+                                <i class="fa-solid fa-arrow-rotate-left"></i>
+                                <p>Reset Password</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+        <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+</aside>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {

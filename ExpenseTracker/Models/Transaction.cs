@@ -1,9 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ExpenseTracker.Models
 {
-    public class Transaction
+    public class Transaction 
     {
         [Key]
         public int TransactionId { get; set; }
@@ -24,21 +25,15 @@ namespace ExpenseTracker.Models
         public DateTime Date { get; set; } = DateTime.Now;
 
         [NotMapped]
-        public string? CategoryTitleWithIcon
-        {
-            get
-            {
-                return Category == null ? "" : Category.Icon + " " + Category.Title;
-            }
-        }
+        public string? CategoryTitleWithIcon => Category == null ? "" : Category.Icon + " " + Category.Title;
 
         [NotMapped]
-        public string? FormattedAmount
+        public string? FormattedAmount => ((Category == null || Category.Type == "Expense") ? "- " : "+ ") + Amount.ToString("C0");
+
+        public IEnumerator GetEnumerator()
         {
-            get
-            {
-                return ((Category == null || Category.Type == "Expense") ? "- " : "+ ") + Amount.ToString("C0");
-            }
+            throw new NotImplementedException();
         }
+
     }
 }

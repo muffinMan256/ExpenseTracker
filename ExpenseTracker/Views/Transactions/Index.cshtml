@@ -1,42 +1,62 @@
-﻿@model IEnumerable<ExpenseTracker.Models.Transaction>
+﻿@model IEnumerable<ExpenseTracker.ViewModel.CategoryTransactionCombinedViewModel>
 
-@{
-    ViewData["PageTitle"] = "Transactions";
-    ViewData["PageActionText"] = "+ New Transaction";
-    ViewData["PageActionUrl"] = "/Transactions/AddOrEdit";
-}
-
-<div class="row">
-    <div class="col-md-7">
-        <ejs-grid id="transactions" dataSource="@Model" gridLines="None" allowSorting="true" allowPaging="true">
-            <e-grid-pagesettings pageSize="5"></e-grid-pagesettings>
-            <e-grid-columns>
-                <e-grid-column headerText="Category" field="CategoryTitleWithIcon"></e-grid-column>
-                <e-grid-column headerText="Date" field="Date" width="100px" type="date" format="MMM-dd-yy" textAlign="Left"></e-grid-column>
-                <e-grid-column headerText="Amount" field="FormattedAmount" textAlign="Right" width="100px"></e-grid-column>
-                <e-grid-column headerText="Actions" template="#actionColumnTemplate" width="100px"></e-grid-column>
-            </e-grid-columns>
-        </ejs-grid>
-    </div>
-    <div class="col-md-5">
-        <div class="widget h-100 d-flex justify-content-center align-items-center" style="background-color: #212b36">
-            <i class="fa-solid fa-money-bill-transfer fa-2xl"></i>
-        </div>
+@*Button*@
+<div class="row my-4">
+    <div class="col-md-12 d-flex justify-content-end">
+        <form asp-action="Create" method="post">
+            <button class="btn btn-warning mt-2"><i class="fa-solid fa-square-plus"></i>&nbsp;New Transaction</button>
+        </form>
     </div>
 </div>
 
-
-<script id="actionColumnTemplate" type="text/x-template">
-    <div class="d-flex flex-row justify-content-start">
-         <a class="btn btn-sm no-a-decoration" href="/Transactions/AddOrEdit/${TransactionId}">
-            <i class="fa-solid fa-pen fa-lg"></i>
-         </a>
-         <form action="/Transactions/Delete/${TransactionId}" method="post">
-    @Html.AntiForgeryToken()
-              <button type="submit" class="btn btn-sm btn-link no-a-decoration" onClick="return confirm(&quot; Do you want to delete this record? &quot;)">
-                 <i class="fa-solid fa-trash-can fa-lg text-danger"></i>
-             </button>
-         </form>
+@*Data Grid*@
+<div class="row mt-2">
+    <div class="col-md-12">
+        <div class="table-responsive-sm">
+            <table class="table table-bordered table-hover" style="width:100%">
+                <thead>
+                    <tr>
+                        <th class="text-center">Category</th>
+                        <th class="text-center">Date</th>
+                        <th class="text-center">Amount</th>
+                        <th class="text-center">Note</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.Transactions.CategoryTitleWithIcon)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.Transactions.Date)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.Transactions.FormattedAmount)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.Transactions.Note)
+                            </td>
+                            <td class="text-center">
+                                <form asp-action="Delete" method="post" asp-route-id="@item.Transactions.TransactionId">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-link no-a-decoration" onClick="return confirm('Do you want to delete this record?')">
+                                        <i class="fa-solid fa-trash-can fa-lg text-danger"></i>
+                                    </button>
+                                </form>
+                                <form asp-action="Edit" method="post" asp-route-id="@item.Transactions.TransactionId">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-link no-a-decoration">
+                                        <i class="fa-solid fa-pen fa-lg text-warning"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
-</script>
-
+</div>

@@ -1,44 +1,178 @@
 ﻿@model ExpenseTracker.Models.Category
 
-@{
-    ViewData["PageTitle"] = Model.CategoryId == 0? "Create a new Category":"Edit Category";
-}
 
 
-<div class="row">
-    <div class="col-md-7">
-        <div class="widget p-5" style="background-color: #212b36">
-            <form asp-action="AddOrEdit">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <input type="hidden" name="CategoryId" value="@Model.CategoryId"/>
-                <div class="mb-3">
-                    <div class='e-btn-group' custom-rbt-group>
-                        <input type="radio" id="radioleft" name="Type" value="Expense" checked="@(Model.Type == "Expense")"/>
-                        <label class="e-btn" for="radioleft">Expense</label>
-                        <input type="radio" id="radiomiddle" name="Type" value="Income" checked="@(Model.Type == "Income")"/>
-                        <label class="e-btn" for="radiomiddle">Income</label>
+
+<section>
+    <form asp-action="AddOrEdit" asp-controller="Category" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row mt-2 justify-content-center">
+            <div class="card card-information">
+                <div class="card-header">
+                    <h2> Create a new Category</h2>
+                </div>
+                <div class="card-body">
+                    @*Row1*@
+                    <div class="row">
+                        @*Title*@
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-form-label small font-w-700 dark-color m-0px">
+                                    Title
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-layer-group"></i></span>
+                                    <input type="text" class="form-control text-box single-line" asp-for="Title" placeholder="Insert the Title for the Category"/>
+                                </div>
+                            </div>
+                        </div>
+                        @*Icon*@
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label id="emoji-instructions" class="col-form-label small font-w-700 dark-color m-0px">
+
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-icons"></i></span>
+                                    <input type="text" class="form-control text-box single-line" asp-for="Icon" placeholder="Select the icon for the Category" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @*Row2*@
+                    <div class="row">
+                        @*Type*@
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="col-form-label small font-w-700 dark-color m-0px">
+                                    Type
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-plus-minus"></i></span>
+                                    <select class="form-control text-box single-line" asp-for="Type">
+                                        <option value="Expense">Expense</option>
+                                        <option value="Income">Income</option>
+                                    </select>                                   
+                                </div>
+                            </div>
+                        </div>
+                        @*Recurring*@
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="col-form-label small font-w-700 dark-color m-0px">
+                                    Recurring
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-repeat"></i></span>
+                                    <select class="form-control text-box single-line" asp-for="Recurring">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        @*CreationDate*@
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="col-form-label small font-w-700 dark-color m-0px">
+                                    Creation Date
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-calendar"></i></span>
+                                    <input type="datetime-local" class="form-control text-box single-line" asp-for="CreationDate"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @*Row3*@
+                    <div class="row">
+                        @*Note*@
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="col-form-label small font-w-700 dark-color m-0px">
+                                    Note
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-plus-minus"></i></span>
+                                    <input type="text" class="form-control text-box single-line" asp-for="Note" />
+                                </div>
+                            </div>
+                        </div>
+                        @*Priority*@
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="col-form-label small font-w-700 dark-color m-0px">
+                                    Priority
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-exclamation"></i></span>
+                                    <select class="form-control text-box single-line" asp-for="Priority">
+                                        <option value="High">High</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="Low">Low</option>
+                                    </select> 
+                                </div>
+                            </div>
+                        </div>
+                        @*Create Button*@
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button class="btn btn-success btn-sm w-auto">Create</button>
+                        </div>
                     </div>
                 </div>
-                <div class="mb-3">
-                    <ejs-textbox id="title" placeholder="Title" ejs-for="Title" floatLabelType="Always"></ejs-textbox>
-                    <span asp-validation-for="Title" class="text-danger fs-6"></span>
-                </div>
-                <div class="mb-3">
-                    <ejs-textbox id="icon" placeholder="Icon - Press Win+. to add your Icon" ejs-for="Icon" floatLabelType="Always"></ejs-textbox>
-                    <span asp-validation-for="Icon" class="text-danger"></span>
-                </div>
-                <ejs-button id="submit" type="submit" content="Submit" cssClass="e-success"></ejs-button>
-            </form>
+            </div>
         </div>
-    </div>
-    <div class="col-md-5">
-        <div class="widget h-100 d-flex justify-content-center align-items-center" style="background-color: #212b36">
-            <i class="fa-solid fa-shapes fa-2xl"></i>
-        </div>
-    </div>
-</div>
+    </form>
+</section>
 
 
+<script>
+    // Function to detect the operating system
+    function detectOS() {
+        var userAgent = window.navigator.userAgent;
+        var platform = window.navigator?.userAgentData?.platform || window.navigator.platform;
+        var macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'];
+        var windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'];
+        var iosPlatforms = ['iPhone', 'iPad', 'iPod'];
+        var os = null;
+
+        if (macosPlatforms.indexOf(platform) !== -1) {
+            os = 'MacOS';
+        } else if (iosPlatforms.indexOf(platform) !== -1) {
+            os = 'iOS';
+        } else if (windowsPlatforms.indexOf(platform) !== -1) {
+            os = 'Windows';
+        } else if (/Android/.test(userAgent)) {
+            os = 'Android';
+        } else if (!os && /Linux/.test(platform)) {
+            os = 'Linux';
+        }
+
+        return os;
+    }
+
+    // Function to update the label text based on the detected OS
+    function updateEmojiInstructions() {
+        var os = detectOS();
+        var instructionsLabel = document.getElementById('emoji-instructions');
+
+        switch (os) {
+            case 'Windows':
+                instructionsLabel.textContent = 'Add your Icon (Press Win + . to access emojis)';
+                break;
+            case 'MacOS':
+                instructionsLabel.textContent = 'Add your Icon (Press Control + Command + Space to access emojis)';
+                break;
+            case 'Linux':
+                instructionsLabel.textContent = 'Add your Icon (Refer to your Linux distribution documentation to access emojis)';
+                break;
+            default:
+                instructionsLabel.textContent = 'Add your Icon';
+        }
+    }
+    // Call the function on page load
+    window.onload = updateEmojiInstructions;
+</script>
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 

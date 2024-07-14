@@ -1,31 +1,80 @@
 using ExpenseTracker.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using ToastNotification;
+using ToastNotification.Extensions;
+using Serilog.Formatting.Json;
+using Serilog;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
+var configuration = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appSettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.Development.json", optional: true)
+    .AddEnvironmentVariables()
+    .Build();
 
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(configuration)
+    .WriteTo.File(new JsonFormatter(), @"Logs/log-.json", shared: true, rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+//log service
+builder.Host.UseSerilog();
 
 // Dependecy Injection - parsing the Connection String for the DB
 
 var connectionString = builder.Configuration.GetConnectionString("DevConnection") ?? throw new InvalidOperationException("Connections string not found");
 builder.Services.AddDbContext<ExpenseTracker.Models.ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
-builder.Services.AddIdentity<ExpenseTrackerUser, IdentityRole>
+builder.Services.AddIdentity<AppUser, IdentityRole>
     (options =>
     {
         //setare parametrii Identity
         options.SignIn.RequireConfirmedAccount = false;
-        options.Password.RequiredLength = 5;
+        options.Password.RequiredLength = 6;
         options.Password.RequireUppercase = true;
+        options.Password.RequireDigit = true;
+        options.Password.RequireNonAlphanumeric = false;
         options.User.RequireUniqueEmail = true;
+
 
     })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddRoles<IdentityRole>()
     .AddDefaultTokenProviders();
+
+//Cookies
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.AccessDeniedPath = new PathString("/Account/AccessDenied");
+    options.Cookie.Name = "Tracker";
+    options.Cookie.HttpOnly = true;
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+    options.LoginPath = new PathString("/Account/Login");
+    options.ReturnUrlParameter = new PathString("/Dashboard/Index");
+    options.SlidingExpiration = true;
+});
+
+
+// Notificari
+builder.Services.AddNotyf(config =>
+    {
+        config.DurationInSeconds = 3; 
+        config.IsDismissable = true; 
+        config.Position = NotyfPosition.BottomRight;
+    });
+
+
+builder.Services.AddMvc(o => {
+        var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build(); o.Filters.Add(new AuthorizeFilter(policy));
+    }).AddViewLocalization(Microsoft.AspNetCore.Mvc.Razor.LanguageViewLocationExpanderFormat.Suffix)
+    .AddDataAnnotationsLocalization();
 
 
 // Add services to the container.
@@ -47,12 +96,27 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+app.UseNotyf();
 app.UseRouting();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Dashboard}/{action=Index}/{id?}");
 
-app.Run();
+try
+{
+    Log.Information("Starting web host");
+    app.Run();
+    return 0;
+}
+catch (Exception ex)
+{
+    Log.Fatal(exception: ex, "Host terminated unexpectedly");
+    return 1;
+}
+finally
+{
+    Log.CloseAndFlush();
+}

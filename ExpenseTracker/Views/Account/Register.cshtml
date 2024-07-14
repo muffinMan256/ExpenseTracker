@@ -1,17 +1,12 @@
-﻿@page
-   using Microsoft.EntityFrameworkCore.Metadata.Internal
-@model RegisterModel
-@{
-    
-}
+﻿@model RegisterModel
 
 <h1>@ViewData["Title"]</h1>
 
-<div class="row">
-    <div class="col-md-4">
-        <form id="registerForm" method="post">
-            <h2>Create a new account.</h2>
-            <hr />
+<section class="wrapper">
+    <div class="form signup">
+        <header>Register</header>
+        <form id="account-register" asp-action="Register" method="post">
+            <h4 class="text-center align-content-center">Here you can create a new account</h4>
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
             <div class="form-floating mb-3">
                 <input asp-for="Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
@@ -23,10 +18,27 @@
                 <label asp-for="Password">Password</label>
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
+            <div class="form-floating mb-3">
+                <input asp-for="PasswordConfirmation" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+                <label asp-for="PasswordConfirmation">Confirm Password</label>
+                <span asp-validation-for="PasswordConfirmation" class="text-danger"></span>
+            </div>
+            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-warning">Register</button>
         </form>
     </div>
-</div>
+    <script>
+        const wrapper = document.querySelector(".wrapper"),
+            signupHeader = document.querySelector(".signup header"),
+            loginHeader = document.querySelector(".login header");
+        loginHeader.addEventListener("click", () => {
+            wrapper.classList.add("active");
+        });
+        signupHeader.addEventListener("click", () => {
+            wrapper.classList.remove("active");
+        });
+    </script>
+</section>
+
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
