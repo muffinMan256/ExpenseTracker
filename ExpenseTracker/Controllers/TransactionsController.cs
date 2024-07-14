@@ -10,6 +10,7 @@ using ExpenseTracker.ViewModel;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.AspNetCore.Identity;
 using ToastNotification.Abstractions;
+using ExpenseTracker.Data;
 
 namespace ExpenseTracker.Controllers
 {

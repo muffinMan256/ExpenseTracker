@@ -8,6 +8,7 @@ using ToastNotification;
 using ToastNotification.Extensions;
 using Serilog.Formatting.Json;
 using Serilog;
+using ExpenseTracker.Data;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,7 +31,7 @@ builder.Host.UseSerilog();
 // Dependecy Injection - parsing the Connection String for the DB
 
 var connectionString = builder.Configuration.GetConnectionString("DevConnection") ?? throw new InvalidOperationException("Connections string not found");
-builder.Services.AddDbContext<ExpenseTracker.Models.ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
 builder.Services.AddIdentity<AppUser, IdentityRole>
     (options =>
@@ -70,6 +71,8 @@ builder.Services.AddNotyf(config =>
         config.Position = NotyfPosition.BottomRight;
     });
 
+
+builder.Services.AddAutoMapper(typeof(Program));
 
 builder.Services.AddMvc(o => {
         var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build(); o.Filters.Add(new AuthorizeFilter(policy));

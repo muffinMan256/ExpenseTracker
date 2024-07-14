@@ -5,13 +5,7 @@ using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pag
 
 namespace ExpenseTracker.ViewModel
 {
-    public class CategoryTransactionCombinedViewModel
-    {
-        public Transaction Transactions { get; set; }
-        public IEnumerable<Category> Categories { get; set; }
-    }
-
-    public class LoginRegisterViewModel
+    public class LoginRegisterCombined
     {
         public LoginModel LoginModel { get; set; }
 

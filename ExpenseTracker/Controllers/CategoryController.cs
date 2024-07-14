@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ExpenseTracker.Models;
 using Microsoft.AspNetCore.Identity;
 using ToastNotification.Abstractions;
+using ExpenseTracker.Data;
 
 namespace ExpenseTracker.Controllers
 {
@@ -18,15 +20,18 @@ namespace ExpenseTracker.Controllers
         private readonly ApplicationDbContext _context;
         private readonly INotyfService _notyfService;
         private readonly ILogger<AccountController> _logger;
+        private readonly IMapper _mapper;
 
-        public CategoryController(INotyfService notyfService, ApplicationDbContext context, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ILogger<AccountController> logger)
+        public CategoryController(INotyfService notyfService, ApplicationDbContext context, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ILogger<AccountController> logger, IMapper mapper)
         {
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
             _notyfService = notyfService;
+            _mapper = mapper;
         }
+
 
         // GET: Category
         public async Task<IActionResult> Index()
@@ -36,25 +41,11 @@ namespace ExpenseTracker.Controllers
         }
 
 
-        // GET: Category/AddOrEdit
-        public IActionResult AddOrEdit(int? id)
+        // GET: Category/Add
+        public IActionResult Add()
         {
-            if (id == null)
-            {
-                return View(new Category());
-            }
-            else
-            {
-                var category = _context.Categories.Find(id);
-                if (category == null)
-                {
-                    return NotFound();
-                }
-                return View(category);
-            }
+            return View();
         }
-
-
 
 
         // POST: Category/Create
@@ -62,70 +53,108 @@ namespace ExpenseTracker.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddOrEdit([Bind("CategoryId,Title,Icon,Type")] Category category)
+        public async Task<IActionResult> Add(CategoryModel model)
         {
             if (ModelState.IsValid)
             {
-                if (category.CategoryId == 0)
-                {
-                    _logger.LogInformation($"Categoria cu id-ul {category.CategoryId} a fost adaugata");
-                    _notyfService.Success("Categoria a fost adaugata cu success.");
-                    _context.Add(category);
-                }
-                else
-                {
-                    _logger.LogInformation($"Categoria cu id-ul {category.CategoryId} a fost actualizata");
-                    _notyfService.Success("Categoria a fost actualizata cu success.");
-                    _context.Update(category);
-                }
+
+                    var newCat = new Category()
+                    {
+                        Title = model.Title,
+                        Icon = model.Icon,
+                        Type = model.Type,
+                        CreationDate = model.CreationDate,
+                        Note = model.Note,
+                        Priority = model.Priority,
+                        Recurring = model.Recurring
+                    };
+
+                     await _context.Categories.AddAsync(newCat);
+
                 await _context.SaveChangesAsync();
+                _logger.LogInformation($"Categoria cu id-ul {model.CategoryId} numele {model.Title} a fost adaugata");
+                _notyfService.Success("Categoria a fost adaugata cu success.");
                 return RedirectToAction(nameof(Index));
             }
 
-            // If ModelState is invalid, fetch categories and return Index view
-            var categories = await _context.Categories.ToListAsync();
-            return View("Index", categories);
+            _notyfService.Warning("Atentie! Modelul nu a fost valid.");
+            return View(model);
+
         }
 
 
-        //Update
-        public async Task<IActionResult> Update(int id, [Bind("CategoryId,Title,Icon,Type")] Category category)
+        // GET: Category/Edit/5
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
         {
-            if(id != category.CategoryId)
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null)
             {
                 return NotFound();
             }
-            if (ModelState.IsValid)
+
+            //var model = new CategoryModel()
+            //{
+            //    CategoryId = category.CategoryId,
+            //    Title = category.Title,
+            //    Icon = category.Icon,
+            //    Type = category.Type,
+            //    CreationDate = category.CreationDate,
+            //    Note = category.Note,
+            //    Priority = category.Priority,
+            //    Recurring = category.Recurring
+
+            //};
+
+            var model = _mapper.Map<CategoryModel>(category);
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(CategoryModel model)
+        {
+            try
             {
-                try
+                if (ModelState.IsValid)
                 {
-                    _context.Update(category);
-                    await _context.SaveChangesAsync();
-
-                    _logger.LogInformation($"Categoria cu id-ul {category.CategoryId} a fost actualizata");
-                    _notyfService.Success("Categoria a fost actualizata cu succes.");
-
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CategoryExists(category.CategoryId))
+                    var existingCategory = await _context.Categories.FindAsync(model.CategoryId);
+                    if (existingCategory == null)
                     {
                         return NotFound();
                     }
-                    else
-                    {
-                        throw;
-                    }
-                }
-            }
 
-            return View("Index");
+                    existingCategory = _mapper.Map(model, existingCategory);
+
+                    // Update the existing category with the values from the passed-in category
+                    //existingCategory.Title = model.Title;
+                    //existingCategory.Icon = model.Icon;
+                    //existingCategory.Type = model.Type;
+                    //existingCategory.CreationDate = model.CreationDate;
+                    //existingCategory.Note = model.Note;
+                    //existingCategory.Priority = model.Priority;
+                    //existingCategory.Recurring = model.Recurring;
+
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation($"Categoria cu id-ul {model.CategoryId} a fost actualizata");
+                    _notyfService.Success("Categoria a fost actualizata cu success.");
+                    return RedirectToAction("Index");
+                }
+                _notyfService.Warning("A aparut o eroare.");
+                return View(model);
+                
+
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                _logger.LogError($"{ex.InnerException}");
+                return RedirectToAction("Index");
+            }
         }
 
         private bool CategoryExists(int id)
         {
-            return _context.Categories.Any(c => c.CategoryId == id);
+            return _context.Categories.Any(e => e.CategoryId == id);
         }
 
 

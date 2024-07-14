@@ -1,4 +1,5 @@
-﻿using ExpenseTracker.Models;
+﻿using ExpenseTracker.Data;
+using ExpenseTracker.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +33,7 @@ namespace ExpenseTracker.Controllers
         public IActionResult Register()
         {
             _logger.LogInformation("Start Register");
-            return View();
+            return View("LoginRegister");
         }
 
         [AllowAnonymous]
@@ -78,11 +79,10 @@ namespace ExpenseTracker.Controllers
                     else
                     {
                         _logger.LogError("Failed to create user.");
-                        return RedirectToAction("Login", "Account");
+                        return RedirectToAction("Register", "Account");
                     }
                 }
-
-
+                
                 ModelState.AddModelError("", "Password was not secure enough");
                 _notyfService.Error("Eroare Inregistrare");
             }
@@ -90,7 +90,7 @@ namespace ExpenseTracker.Controllers
             {
                 _logger.LogError(ex.InnerException?.ToString());
             }
-            return View();
+            return View("LoginRegister");
 
         }
 
@@ -98,13 +98,15 @@ namespace ExpenseTracker.Controllers
         //LOGIN
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Login()
+        public Task<IActionResult> Login()
         {
-            return View();
+
+            var lst = _userManager.Users.ToList();
+            return Task.FromResult<IActionResult>(View("LoginRegister"));
         }
 
-        [AllowAnonymous]
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(LoginModel model)
         {
             if (ModelState.IsValid)
@@ -120,8 +122,9 @@ namespace ExpenseTracker.Controllers
                     }
                 }
                 ModelState.AddModelError("", "Invalid login attempt.");
+                return RedirectToAction("Login", "Account");
             }
-            return View();
+            return RedirectToAction("Login", "Account");
         }
 
 
@@ -130,7 +133,7 @@ namespace ExpenseTracker.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
-        { 
+        {
             await _signInManager.SignOutAsync();
             _logger.LogInformation("User has logged out");
             _notyfService.Information("Utilizator a fost delogat cu success");
@@ -158,31 +161,31 @@ namespace ExpenseTracker.Controllers
             if (ModelState.IsValid)
             {
                 var user = await _userManager.GetUserAsync(User);
-               if (user == null)
-               {
-                   _logger.LogError("Nu exista utilizatorul");
-                   _notyfService.Error("Utilizatorul nu a fost găsit.");
-                   return RedirectToAction("Index", "Dashboard");
+                if (user == null)
+                {
+                    _logger.LogError("Nu exista utilizatorul");
+                    _notyfService.Error("Utilizatorul nu a fost găsit.");
+                    return RedirectToAction("Index", "Dashboard");
                 }
-               user.Email = model.Email;
-               user.UserName = model.Email;
-               user.FirstName = model.FirstName;
-               user.LastName = model.LastName;
-               user.Birthday = model.Birthday;
-            
-               var result = await _userManager.UpdateAsync(user);
+                user.Email = model.Email;
+                user.UserName = model.Email;
+                user.FirstName = model.FirstName;
+                user.LastName = model.LastName;
+                user.Birthday = model.Birthday;
 
-               if (result.Succeeded)
-               {
-                   _logger.LogInformation($"a fost actualizat utilizatorul {user.UserName} cu success");
-                   _notyfService.Information("Utilizator actualizat cu success");
-                   return RedirectToAction("Index", "Dashboard");
+                var result = await _userManager.UpdateAsync(user);
+
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation($"a fost actualizat utilizatorul {user.UserName} cu success");
+                    _notyfService.Information("Utilizator actualizat cu success");
+                    return RedirectToAction("Index", "Dashboard");
                 }
-               else
-               {
-                   _logger.LogInformation("Eroare actualizare");
-                   _notyfService.Error("A aparut o eroare la actualizare");
-                   return RedirectToAction("Index", "Dashboard");
+                else
+                {
+                    _logger.LogInformation("Eroare actualizare");
+                    _notyfService.Error("A aparut o eroare la actualizare");
+                    return RedirectToAction("Index", "Dashboard");
                 }
             }
             _logger.LogInformation("Check Db to see if updated");

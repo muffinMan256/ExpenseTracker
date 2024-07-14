@@ -2,19 +2,20 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ExpenseTracker.Models
+namespace ExpenseTracker.Data
 {
-    public class Transaction 
+    public class Transaction
     {
         [Key]
         public int TransactionId { get; set; }
 
         //categoryid - FK
-        [Range(1,int.MaxValue,ErrorMessage = "Please select a category!")]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a category!")]
         public int CategoryId { get; set; }
 
         //specifying Foreign Keys between 2 Tables in Entity Framework Core
-        public Category? Category { get; set; }
+        [ForeignKey("CategoryId")]
+        public virtual Category Category { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "Amount should be greater than 0!")]
         public int Amount { get; set; }
@@ -28,12 +29,6 @@ namespace ExpenseTracker.Models
         public string? CategoryTitleWithIcon => Category == null ? "" : Category.Icon + " " + Category.Title;
 
         [NotMapped]
-        public string? FormattedAmount => ((Category == null || Category.Type == "Expense") ? "- " : "+ ") + Amount.ToString("C0");
-
-        public IEnumerator GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
-
+        public string? FormattedAmount => (Category == null || Category.Type == "Expense" ? "- " : "+ ") + Amount.ToString("C0");
     }
 }

@@ -1,9 +1,9 @@
-﻿@model IEnumerable<ExpenseTracker.Models.Category>
+﻿@model IEnumerable<ExpenseTracker.Data.Category>
 
-@*Button*@
+
 <div class="row my-4">
     <div class="col-md-12 d-flex justify-content-end">
-        <a asp-action="AddOrEdit" class="btn btn-warning mt-2"><i class="fa-solid fa-square-plus"></i>&nbsp;New Category</a>
+        <a asp-action="Add" class="btn btn-warning mt-2"><i class="fa-solid fa-square-plus"></i>&nbsp;New Category</a>
     </div>
 </div>
 
@@ -16,6 +16,10 @@
                     <tr>
                         <th class="text-center">Category</th>
                         <th class="text-center">Type</th>
+                        <th class="text-center">Creation Date</th>
+                        <th class="text-center">Note</th>
+                        <th class="text-center">Priority</th>
+                        <th class="text-center">Recurring</th>
                         <th class="text-center">Actions</th>
                     </tr>
                 </thead>
@@ -36,21 +40,45 @@
                                         <span class="badge bg-danger">@category.Type</span>
                                     }
                                 </td>
+                                <td class="text-center">@category.CreationDate</td>
+                                <td class="text-center">@category.Note</td>
+                                <td class="text-center">
+                                    @if (category.Priority == "High")
+                                    {
+                                        <span class="badge bg-danger">@category.Priority</span>
+                                    }
+                                    else if (category.Priority == "Medium")
+                                    {
+                                        <span class="badge bg-warning">@category.Priority</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">@category.Priority</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (category.Recurring == "1")
+                                    {
+                                        <p>Yes</p>
+                                    }
+                                    else
+                                    {
+                                        <p>No</p>
+                                    }
+                                    </td>
                                 <td class="text-center">
                                     <form asp-action="Delete" asp-controller="Category" method="post">
                                         @Html.AntiForgeryToken()
-                                        <input type="hidden" name="id" value="@category.CategoryId" />
-                                        <button type="submit" class="btn btn-sm btn-link no-a-decoration" onclick="return confirm('Do you want to delete this record?');">
-                                            <i class="fa-solid fa-trash-can fa-lg text-danger"></i>
+                                        <input type="hidden" name="id" value="@category.CategoryId"/>
+                                        <button type="submit" class="btn btn-danger mt-2" onclick="return confirm('Do you want to delete this record?');">
+                                            <i class="fa-solid fa-trash-can"></i> &nbsp;Delete
                                         </button>
                                     </form>
-                                    <form asp-action="AddOrEdit" asp-controller="Category" method="post">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="id" value="@category.CategoryId" />
-                                        <button type="submit" class="btn btn-sm btn-link no-a-decoration">
-                                            <i class="fa-solid fa-pen fa-lg text-warning"></i>
+                                    <a asp-action="Edit" asp-route-id="@category.CategoryId">
+                                        <button type="submit" class="btn btn-warning mt-2">
+                                            <i class="fa-solid fa-pen"></i> &nbsp;Edit
                                         </button>
-                                    </form>
+                                    </a>
                                 </td>
                             </tr>
                         }

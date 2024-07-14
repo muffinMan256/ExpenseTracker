@@ -1,15 +1,16 @@
-﻿@model ExpenseTracker.Models.Category
+﻿@model ExpenseTracker.Models.CategoryModel
 
 
 
 
 <section>
-    <form asp-action="AddOrEdit" asp-controller="Category" method="post">
+    <form asp-action="Edit" asp-controller="Category" method="post">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="CategoryId"/>
         <div class="row mt-2 justify-content-center">
             <div class="card card-information">
                 <div class="card-header">
-                    <h2> Create a new Category</h2>
+                    <h2> Update Category @Model.Title</h2>
                 </div>
                 <div class="card-body">
                     @*Row1*@
@@ -17,25 +18,23 @@
                         @*Title*@
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="col-form-label small font-w-700 dark-color m-0px">
-                                    Title
-                                </label>
+                                <label asp-for="Title" class="col-form-label small font-w-700 dark-color m-0px"></label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa-solid fa-layer-group"></i></span>
-                                    <input type="text" class="form-control text-box single-line" asp-for="Title" placeholder="Insert the Title for the Category"/>
+                                    <input type="text" class="form-control text-box single-line" asp-for="Title" placeholder="@Model.Title" />
                                 </div>
+                                <span asp-validation-for="Title" class="text-danger"></span>
                             </div>
                         </div>
                         @*Icon*@
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label id="emoji-instructions" class="col-form-label small font-w-700 dark-color m-0px">
-
-                                </label>
+                                <label asp-for="Icon" id="emoji-instructions" class="col-form-label small font-w-700 dark-color m-0px"></label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa-solid fa-icons"></i></span>
-                                    <input type="text" class="form-control text-box single-line" asp-for="Icon" placeholder="Select the icon for the Category" />
+                                    <input type="text" class="form-control text-box single-line" asp-for="Icon" placeholder="@Model.Icon" />
                                 </div>
+                                <span asp-validation-for="Icon" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
@@ -44,80 +43,76 @@
                         @*Type*@
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label class="col-form-label small font-w-700 dark-color m-0px">
-                                    Type
-                                </label>
+                                <label asp-for="Type" class="col-form-label small font-w-700 dark-color m-0px"></label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa-solid fa-plus-minus"></i></span>
-                                    <select class="form-control text-box single-line" asp-for="Type">
+                                    <select class="form-control text-box single-line" asp-for="Type" placeholder="@Model.Type">
+                                        <option value=""></option>
                                         <option value="Expense">Expense</option>
                                         <option value="Income">Income</option>
-                                    </select>                                   
-                                </div>
-                            </div>
-                        </div>
-                        @*Recurring*@
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label class="col-form-label small font-w-700 dark-color m-0px">
-                                    Recurring
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fa-solid fa-repeat"></i></span>
-                                    <select class="form-control text-box single-line" asp-for="Recurring">
-                                        <option value="1">Yes</option>
-                                        <option value="0">No</option>
                                     </select>
                                 </div>
+                                <span asp-validation-for="Type" class="text-danger"></span>
                             </div>
                         </div>
                         @*CreationDate*@
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label class="col-form-label small font-w-700 dark-color m-0px">
-                                    Creation Date
-                                </label>
+                                <label asp-for="CreationDate" class="col-form-label small font-w-700 dark-color m-0px"></label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa-solid fa-calendar"></i></span>
-                                    <input type="datetime-local" class="form-control text-box single-line" asp-for="CreationDate"/>
+                                    <input type="date" class="form-control text-box single-line" asp-for="CreationDate" placeholder="@Model.CreationDate" />
+                                </div>
+                                <span asp-validation-for="CreationDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        @*Note*@
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="Note" class="col-form-label small font-w-700 dark-color m-0px"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-plus-minus"></i></span>
+                                    <input type="text" class="form-control text-box single-line" asp-for="Note" placeholder="@Model.Note" />
                                 </div>
                             </div>
                         </div>
                     </div>
                     @*Row3*@
                     <div class="row">
-                        @*Note*@
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label class="col-form-label small font-w-700 dark-color m-0px">
-                                    Note
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fa-solid fa-plus-minus"></i></span>
-                                    <input type="text" class="form-control text-box single-line" asp-for="Note" />
-                                </div>
-                            </div>
-                        </div>
                         @*Priority*@
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="form-group">
-                                <label class="col-form-label small font-w-700 dark-color m-0px">
-                                    Priority
-                                </label>
+                                <label asp-for="Priority" class="col-form-label small font-w-700 dark-color m-0px"></label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa-solid fa-exclamation"></i></span>
-                                    <select class="form-control text-box single-line" asp-for="Priority">
+                                    <select class="form-control text-box single-line" asp-for="Priority" placeholder="@Model.Priority">
+                                        <option value=""></option>
                                         <option value="High">High</option>
                                         <option value="Medium">Medium</option>
                                         <option value="Low">Low</option>
-                                    </select> 
+                                    </select>
                                 </div>
+                                <span asp-validation-for="Priority" class="text-danger"></span>
                             </div>
                         </div>
-                        @*Create Button*@
-                        <div class="col-md-4 d-flex align-items-end">
-                            <button class="btn btn-success btn-sm w-auto">Create</button>
+                        @*Recurring*@
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Recurring" class="col-form-label small font-w-700 dark-color m-0px"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-repeat"></i></span>
+                                    <select class="form-control text-box single-line" asp-for="Recurring" placeholder="@Model.Priority">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                    </select>
+                                </div>
+                                <span asp-validation-for="Recurring" class="text-danger"></span>
+                            </div>
                         </div>
+                    </div>
+                    @*Create Button*@
+                    <div class="d-flex">
+                        <button class="btn btn-primary btn-sm w-auto">Update your Category</button>
                     </div>
                 </div>
             </div>
