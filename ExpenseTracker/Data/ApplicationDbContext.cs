@@ -8,14 +8,13 @@ namespace ExpenseTracker.Data
 {
     public class ApplicationDbContext : IdentityDbContext<AppUser>
     {
-        //constructor - add the correspondent dbConnction string
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
 
         }
 
-        public DbSet<Transaction> Transactions { get; set; }
-        public DbSet<Category> Categories { get; set; }
+        public DbSet<TransactionModel> Transactions { get; set; }
+        public DbSet<CategoryModel> Categories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -51,9 +50,9 @@ namespace ExpenseTracker.Data
                 entity.ToTable("UserToken");
             });
 
-            builder.Entity<Transaction>().ToTable("Transactions");
+            builder.Entity<TransactionModel>().ToTable("Transactions");
 
-            builder.Entity<Category>().ToTable("Categories");
+            builder.Entity<CategoryModel>().ToTable("Categories");
 
 
         }

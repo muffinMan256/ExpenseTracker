@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
+using ExpenseTracker.Data;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using ExpenseTracker.Models;
 using Microsoft.AspNetCore.Identity;
 using ToastNotification.Abstractions;
-using ExpenseTracker.Data;
+using ExpenseTracker.Models;
 
 namespace ExpenseTracker.Controllers
 {
@@ -33,7 +28,7 @@ namespace ExpenseTracker.Controllers
         }
 
 
-        // GET: Category
+        // INDEX - GET
         public async Task<IActionResult> Index()
         {
             var categories = await _context.Categories.ToListAsync();
@@ -41,24 +36,20 @@ namespace ExpenseTracker.Controllers
         }
 
 
-        // GET: Category/Add
+        // ADD - GET
         public IActionResult Add()
         {
             return View();
         }
-
-
-        // POST: Category/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // ADD - POST
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(CategoryModel model)
         {
             if (ModelState.IsValid)
-            {
-
-                    var newCat = new Category()
+            {   
+                    //de ce nu folosim CategoryModel
+                    var newCat = new CategoryModel()
                     {
                         Title = model.Title,
                         Icon = model.Icon,
@@ -69,8 +60,8 @@ namespace ExpenseTracker.Controllers
                         Recurring = model.Recurring
                     };
 
-                     await _context.Categories.AddAsync(newCat);
-
+                     
+                await _context.Categories.AddAsync(newCat);
                 await _context.SaveChangesAsync();
                 _logger.LogInformation($"Categoria cu id-ul {model.CategoryId} numele {model.Title} a fost adaugata");
                 _notyfService.Success("Categoria a fost adaugata cu success.");
@@ -83,7 +74,7 @@ namespace ExpenseTracker.Controllers
         }
 
 
-        // GET: Category/Edit/5
+        // EDIT - GET
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -92,24 +83,11 @@ namespace ExpenseTracker.Controllers
             {
                 return NotFound();
             }
-
-            //var model = new CategoryModel()
-            //{
-            //    CategoryId = category.CategoryId,
-            //    Title = category.Title,
-            //    Icon = category.Icon,
-            //    Type = category.Type,
-            //    CreationDate = category.CreationDate,
-            //    Note = category.Note,
-            //    Priority = category.Priority,
-            //    Recurring = category.Recurring
-
-            //};
-
             var model = _mapper.Map<CategoryModel>(category);
             return View(model);
         }
 
+        // EDIT - POST
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(CategoryModel model)
@@ -125,16 +103,6 @@ namespace ExpenseTracker.Controllers
                     }
 
                     existingCategory = _mapper.Map(model, existingCategory);
-
-                    // Update the existing category with the values from the passed-in category
-                    //existingCategory.Title = model.Title;
-                    //existingCategory.Icon = model.Icon;
-                    //existingCategory.Type = model.Type;
-                    //existingCategory.CreationDate = model.CreationDate;
-                    //existingCategory.Note = model.Note;
-                    //existingCategory.Priority = model.Priority;
-                    //existingCategory.Recurring = model.Recurring;
-
                     await _context.SaveChangesAsync();
                     _logger.LogInformation($"Categoria cu id-ul {model.CategoryId} a fost actualizata");
                     _notyfService.Success("Categoria a fost actualizata cu success.");
@@ -151,14 +119,13 @@ namespace ExpenseTracker.Controllers
                 return RedirectToAction("Index");
             }
         }
-
         private bool CategoryExists(int id)
         {
             return _context.Categories.Any(e => e.CategoryId == id);
         }
 
 
-        // POST: Category/Delete/5
+        // DELETE - POST
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

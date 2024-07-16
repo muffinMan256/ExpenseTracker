@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ExpenseTracker.Models;
-using ExpenseTracker.ViewModel;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.AspNetCore.Identity;
 using ToastNotification.Abstractions;
 using ExpenseTracker.Data;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ExpenseTracker.Controllers
 {
@@ -21,39 +16,61 @@ namespace ExpenseTracker.Controllers
         private readonly ApplicationDbContext _context;
         private readonly INotyfService _notyfService;
         private readonly ILogger<AccountController> _logger;
+        private IMapper _mapper;
 
-        public TransactionsController(INotyfService notyfService, ApplicationDbContext context, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ILogger<AccountController> logger)
+        public TransactionsController(INotyfService notyfService, ApplicationDbContext context, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ILogger<AccountController> logger, IMapper mapper)
         {
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _mapper = mapper;
             _notyfService = notyfService;
         }
 
-        //View Model 
-        public async Task<IActionResult> AssignTransactions(CategoryTransactionCombinedViewModel model)
+
+        // INDEX - GET
+        public async Task<IActionResult> Index()
         {
-            var category = await _context.Categories.FindAsync(model.Transactions.CategoryId);
+            var transactions = await _context.Transactions.Include(t => t.Category).ToListAsync();
+
+            var model = transactions.Select(a => new TransactionModel
+            {
+                TransactionId = a.TransactionId,
+                CategoryId = a.CategoryId,
+                Amount = a.Amount,
+                Note = a.Note,
+                Date = a.Date,
+                CategoryTitleWithIcon = a.CategoryTitleWithIcon,
+                FormattedAmount = a.FormattedAmount,
+                Category = a.Category
+            }
+            ).ToList();
+            return View(model);
+        }
+
+        public async Task<IActionResult> AssignTransactions(TransactionModel model)
+        {
+            var category = await _context.Categories.FindAsync(model.CategoryId);
 
             if (category == null)
             {
                 _logger.LogInformation("Category not found.");
                 _notyfService.Error("Category not found.");
-                return View("Index", new List<CategoryTransactionCombinedViewModel>());
+                return View("Index", new List<TransactionModel>());
             }
 
-            model.Categories = new List<Category> { category };
+            ViewBag.Categories = PopulateCategory(model.CategoryId);
 
             if (ModelState.IsValid)
             {
                 // Create a new Transaction object
-                var transaction = new Transaction
+                var transaction = new TransactionModel()
                 {
-                    CategoryId = model.Transactions.CategoryId,
-                    Amount = model.Transactions.Amount,
-                    Note = model.Transactions.Note,
-                    Date = model.Transactions.Date
+                    CategoryId = model.CategoryId,
+                    Amount = model.Amount,
+                    Note = model.Note,
+                    Date = model.Date
                 };
 
                 await _context.Transactions.AddAsync(transaction);
@@ -65,44 +82,21 @@ namespace ExpenseTracker.Controllers
             }
 
             // If ModelState is not valid, return to Index view with empty list
-            return View("Index", new List<CategoryTransactionCombinedViewModel>());
+            return View("Index", new List<TransactionModel>());
         }
 
-
-
-
-
-
-
-        // GET: Transactions/ViewAll
-        public async Task<IActionResult> Index()
-        {
-            var transactions = await _context.Transactions.Include(t => t.Category).ToListAsync();
-            var categories = await _context.Categories.ToListAsync();
-
-            // Create a list of CategoryTransactionCombinedViewModel
-            var model = transactions.Select(transaction => new CategoryTransactionCombinedViewModel
-            {
-                Transactions = transaction,
-                Categories = categories
-            }).ToList();
-
-            return View(model);
-        }
-
-
-
-        // Get: Transactions/Add
         [HttpGet]
-        public  IActionResult Create()
+        public IActionResult Create()
         {
+
+            ViewBag.Categories = PopulateCategory(0);
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Transaction transactions)
+        public async Task<IActionResult> Create(TransactionModel model)
         {
-            var category = await _context.Categories.FindAsync(transactions.CategoryId);
+            var category = await _context.Categories.FindAsync(model.CategoryId);
 
             if (category is null)
             {
@@ -111,12 +105,12 @@ namespace ExpenseTracker.Controllers
 
             }
 
-            var transaction = new Transaction()
+            var transaction = new TransactionModel()
             {
-                Category = category,
-                Amount = transactions.Amount,
-                Note = transactions.Note,
-                Date = transactions.Date,
+                CategoryId = model.CategoryId,
+                Amount = model.Amount,
+                Note = model.Note,
+                Date = model.Date,
             };
 
             if (ModelState.IsValid)
@@ -134,7 +128,6 @@ namespace ExpenseTracker.Controllers
 
 
 
-        // GET: Transactions/Edit
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -151,32 +144,29 @@ namespace ExpenseTracker.Controllers
                 _logger.LogInformation("Eroare gasire tranzactie");
                 _notyfService.Information("Eroare");
             }
-            PopulateCategory();
 
-            return View(transaction);
+            var model = _mapper.Map<TransactionModel>(transaction);
+            ViewBag.Categories = PopulateCategory(model.CategoryId);
+
+            return View(model);
         }
 
-        // POST: Transactions/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("TransactionId,CategoryId,Amount,Note,Date")] Transaction transaction)
+        public async Task<IActionResult> Edit(TransactionModel model)
         {
-            if (id != transaction.TransactionId)
-            {
-                return NotFound();
-            }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(transaction);
+                    _context.Update(model);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!_context.Transactions.Any(t => t.TransactionId == transaction.TransactionId))
+                    if (!_context.Transactions.Any(t => t.TransactionId == model.TransactionId))
                     {
                         return NotFound();
                     }
@@ -185,14 +175,13 @@ namespace ExpenseTracker.Controllers
                         throw;
                     }
                 }
-                
+
             }
-            PopulateCategory();
+            ViewBag.Categories = PopulateCategory(model.CategoryId);
             return View();
         }
 
 
-        // Transactions/Delete
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -200,23 +189,30 @@ namespace ExpenseTracker.Controllers
             var transaction = await _context.Transactions.FindAsync(id);
             if (transaction != null)
             {
-                _context.Transactions.Remove(transaction);
                 _logger.LogInformation("Tranzactia a fost stearsa din baza de date.");
                 _notyfService.Information("Tranzactia a fost stearsa.");
-            }
 
-            await _context.SaveChangesAsync();
+                _context.Transactions.Remove(transaction);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+
+            }
+            _notyfService.Information("Can delete record");
             return RedirectToAction(nameof(Index));
         }
 
-        [NonAction]
-        public void PopulateCategory()
+        private async Task<IEnumerable<SelectListItem>> PopulateCategory(int categoryId)
         {
-            var categoryCollection = _context.Categories.ToList();
+            var lstCategory = await _context.Categories.ToListAsync();
+
             Category defaultCategory = new Category() { CategoryId = 0, Title = "Choose Category" };
-            // it's going to be inserted at the 0 index
-            categoryCollection.Insert(0, defaultCategory);
-            ViewBag.Categories = categoryCollection;
+            //lstCategory.Insert(0, defaultCategory);
+            return lstCategory.Select(d => new SelectListItem()
+            {
+                Text = d.TitleWithIcon,
+                Value = d.CategoryId.ToString(),
+                Selected = categoryId == d.CategoryId ? true : false
+            }).ToList();
         }
     }
 }

@@ -1,21 +1,19 @@
 ﻿using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using ExpenseTracker.Data;
 
-namespace ExpenseTracker.Data
+namespace ExpenseTracker.Models
 {
-    public class Transaction
+    public class TransactionModel
     {
         [Key]
         public int TransactionId { get; set; }
 
-        //categoryid - FK
+        //FK
         [Range(1, int.MaxValue, ErrorMessage = "Please select a category!")]
         public int CategoryId { get; set; }
 
-        //specifying Foreign Keys between 2 Tables in Entity Framework Core
-        [ForeignKey("CategoryId")]
-        public virtual Category Category { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "Amount should be greater than 0!")]
         public int Amount { get; set; }
@@ -26,9 +24,11 @@ namespace ExpenseTracker.Data
         public DateTime Date { get; set; } = DateTime.Now;
 
         [NotMapped]
-        public string? CategoryTitleWithIcon => Category == null ? "" : Category.Icon + " " + Category.Title;
+        public string? CategoryTitleWithIcon { get; set; }
 
         [NotMapped]
-        public string? FormattedAmount => (Category == null || Category.Type == "Expense" ? "- " : "+ ") + Amount.ToString("C0");
+        public string? FormattedAmount { get; set; }
+
+        public Category Category {get; set; }
     }
 }

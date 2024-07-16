@@ -1,4 +1,3 @@
-using ExpenseTracker.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
 using Microsoft.AspNetCore.Authorization;

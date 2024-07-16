@@ -27,7 +27,7 @@ namespace ExpenseTracker.Controllers
 
 
 
-        //REGISTER
+        //REGISTER - GET
         [AllowAnonymous]
         [HttpGet]
         public IActionResult Register()
@@ -36,9 +36,10 @@ namespace ExpenseTracker.Controllers
             return View("LoginRegister");
         }
 
+        //REGISTER - POST
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> Register(RegisterModel model)
+        public async Task<IActionResult> Register(LoginRegisterCombined model)
         {
             try
             {
@@ -56,7 +57,7 @@ namespace ExpenseTracker.Controllers
                         throw new InvalidOperationException("Model is null.");
                     }
 
-                    if (string.IsNullOrEmpty(model.Password))
+                    if (string.IsNullOrEmpty(model.RegisterModel.Password))
                     {
                         _logger.LogError("Password is null or empty.");
                         throw new InvalidOperationException("Password is null or empty.");
@@ -64,11 +65,11 @@ namespace ExpenseTracker.Controllers
 
                     var user = new AppUser
                     {
-                        Email = model.Email,
-                        UserName = model.Email
+                        Email = model.RegisterModel.Email,
+                        UserName = model.RegisterModel.Email
                     };
 
-                    var result = await _userManager.CreateAsync(user, model.Password);
+                    var result = await _userManager.CreateAsync(user, model.RegisterModel.Password);
 
                     if (result.Succeeded)
                     {
@@ -82,7 +83,7 @@ namespace ExpenseTracker.Controllers
                         return RedirectToAction("Register", "Account");
                     }
                 }
-                
+
                 ModelState.AddModelError("", "Password was not secure enough");
                 _notyfService.Error("Eroare Inregistrare");
             }
@@ -95,26 +96,24 @@ namespace ExpenseTracker.Controllers
         }
 
 
-        //LOGIN
+        //LOGIN - GET
         [HttpGet]
         [AllowAnonymous]
-        public Task<IActionResult> Login()
+        public IActionResult Login()
         {
-
-            var lst = _userManager.Users.ToList();
-            return Task.FromResult<IActionResult>(View("LoginRegister"));
+            return View("LoginRegister");
         }
-
+        //LOGIN - POST
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> Login(LoginModel model)
+        public async Task<IActionResult> Login(LoginRegisterCombined model)
         {
             if (ModelState.IsValid)
             {
-                var user = await _userManager.FindByEmailAsync(model.Email);
+                var user = await _userManager.FindByEmailAsync(model.LoginModel.Email);
                 if (user != null)
                 {
-                    var result = await _signInManager.PasswordSignInAsync(user, model.Password, false, lockoutOnFailure: false);
+                    var result = await _signInManager.PasswordSignInAsync(user, model.LoginModel.Password, false, lockoutOnFailure: false);
                     if (result.Succeeded)
                     {
                         _logger.LogInformation($"utilizatorul cu numele{user.Email} s-a logat pe pagina");
@@ -140,7 +139,7 @@ namespace ExpenseTracker.Controllers
             return RedirectToAction("Login", "Account");
         }
 
-        //EDIT Account
+        //UPDATE - GET
         [HttpGet]
         public async Task<IActionResult> Edit()
         {
@@ -154,7 +153,7 @@ namespace ExpenseTracker.Controllers
                 return View(user);
             }
         }
-
+        //UPDATE - POST
         [HttpPost]
         public async Task<IActionResult> Update(AppUser model)
         {
