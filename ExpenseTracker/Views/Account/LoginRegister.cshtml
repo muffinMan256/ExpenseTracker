@@ -11,22 +11,29 @@
                 <span asp-validation-for="@Model.LoginModel.Email" class="text-danger"></span>
                
             </div>
-            <div class="form-floating mb-3 text-black">
+            <div class="form-floating mb-1 text-black">
                 <input asp-for="@Model.LoginModel.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
                 <label asp-for="@Model.LoginModel.Password" class="form-label">Password <i class="fa-solid fa-key"></i> </label>
                 <span asp-validation-for="@Model.LoginModel.Password" class="text-danger"></span>
             </div>
-            <div class="row justify-content-center">
-                @* <div class="col-md-6">
-                    <div class="checkbox mb-3 justify-content">
-                        <label asp-for="@Model.LoginModel.RememberMe" class="form-label" style="color: black">
-                            <input class="form-check-input" asp-for="@Model.LoginModel.RememberMe" />
-                            @Html.DisplayNameFor(m => m.@Model.LoginModel.RememberMe)
-                        </label>
-                    </div>
-                </div> *@
+            <div class="row justify-content-left">
                 <div class="col-md-6">
-                    <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-warning">Login</button>
+                    <div class="checkbox mb-2">
+                        <input class="form-check-input" asp-for="@Model.LoginModel.RememberMe" />
+                        <label asp-for="@Model.LoginModel.RememberMe" class="form-label" style="color: white"> @Html.DisplayNameFor(m => m.LoginModel.RememberMe)</label>
+                    </div>
+                </div>
+            </div>
+            @* <div class="form-group">
+                <div class="checkbox">
+                    <label asp-for="@Model.LoginModel.RememberMe">
+                        <input asp-for="@Model.LoginModel.RememberMe" /> @Html.DisplayNameFor(m => m.LoginModel.RememberMe)
+                    </label>
+                </div>
+            </div> *@
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <button id="loginButton" type="submit" class="w-100 btn btn-lg btn-warning">Login</button>
                 </div>
             </div>
         </form>
@@ -34,24 +41,28 @@
     <div class="form login">
         <header>Register</header>
         <form id="account-register" asp-action="Register" asp-controller="Account" method="post">
-            <h4 class="text-center align-content-center">Here you can create a new account</h4>
+            <h4 class="text-center align-content-center">Register an account!</h4>
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
             <div class="form-floating mb-3">
                 <input asp-for="@Model.RegisterModel.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                <label asp-for="@Model.RegisterModel.Email">Email</label>
+                <label asp-for="@Model.RegisterModel.Email">Email <i style="display: inline-flex" class="fa-solid fa-envelope"></i></label>
                 <span asp-validation-for="@Model.RegisterModel.Email" class="text-danger"></span>
             </div>
             <div class="form-floating mb-3">
                 <input asp-for="@Model.RegisterModel.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="@Model.RegisterModel.Password">Password</label>
+                <label asp-for="@Model.RegisterModel.Password">Password <i class="fa-solid fa-key"></i></label>
                 <span asp-validation-for="@Model.RegisterModel.Password" class="text-danger"></span>
             </div>
             <div class="form-floating mb-3">
                 <input asp-for="@Model.RegisterModel.PasswordConfirmation" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="@Model.RegisterModel.PasswordConfirmation">Confirm Password</label>
+                <label asp-for="@Model.RegisterModel.PasswordConfirmation">Confirm Password <i class="fa-solid fa-repeat"></i></label>
                 <span asp-validation-for="@Model.RegisterModel.PasswordConfirmation" class="text-danger"></span>
             </div>
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-warning">Register</button>
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <button id="registerButton" type="submit" class="w-100 btn btn-lg btn-warning">Register</button>
+                </div>
+            </div>
         </form>
     </div>
     <script>

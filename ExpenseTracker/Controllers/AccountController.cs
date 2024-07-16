@@ -1,4 +1,5 @@
-﻿using ExpenseTracker.Data;
+﻿using System.Security.Claims;
+using ExpenseTracker.Data;
 using ExpenseTracker.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -73,7 +74,12 @@ namespace ExpenseTracker.Controllers
 
                     if (result.Succeeded)
                     {
+                        var claim = new Claim("Authentication", "Demo");
+
+                        await _userManager.AddClaimsAsync(user, new List<Claim>{claim});
+
                         _logger.LogInformation($"User {user.UserName} created successfully.");
+                        _logger.LogInformation($"User {user.UserName} has these Claims: {claim.Type} ,  {claim.Value} created successfully.");
                         _notyfService.Information("User created successfully.");
                         return RedirectToAction("Login", "Account");
                     }
@@ -105,7 +111,7 @@ namespace ExpenseTracker.Controllers
         }
         //LOGIN - POST
         [HttpPost]
-        [AllowAnonymous]
+        [Authorize(Policy = "Test")]
         public async Task<IActionResult> Login(LoginRegisterCombined model)
         {
             if (ModelState.IsValid)
@@ -113,11 +119,21 @@ namespace ExpenseTracker.Controllers
                 var user = await _userManager.FindByEmailAsync(model.LoginModel.Email);
                 if (user != null)
                 {
-                    var result = await _signInManager.PasswordSignInAsync(user, model.LoginModel.Password, false, lockoutOnFailure: false);
+                    var result = await _signInManager.PasswordSignInAsync(user, model.LoginModel.Password, model.LoginModel.RememberMe, lockoutOnFailure: false);
                     if (result.Succeeded)
                     {
                         _logger.LogInformation($"utilizatorul cu numele{user.Email} s-a logat pe pagina");
                         return RedirectToAction("Index", "Dashboard");
+                    }
+                    else if (result.IsLockedOut)
+                    {
+                        _logger.LogInformation($"User {user.Email} is locked out.");
+                        return RedirectToAction("Login", "Account");
+                    }
+                    else if (result.IsNotAllowed)
+                    {
+                        _logger.LogInformation($"User {user.Email} is not allowed to log in.");
+                        return RedirectToAction("Login", "Account");
                     }
                 }
                 ModelState.AddModelError("", "Invalid login attempt.");
@@ -166,8 +182,8 @@ namespace ExpenseTracker.Controllers
                     _notyfService.Error("Utilizatorul nu a fost găsit.");
                     return RedirectToAction("Index", "Dashboard");
                 }
+                user.UserName = model.UserName;
                 user.Email = model.Email;
-                user.UserName = model.Email;
                 user.FirstName = model.FirstName;
                 user.LastName = model.LastName;
                 user.Birthday = model.Birthday;
@@ -190,6 +206,23 @@ namespace ExpenseTracker.Controllers
             _logger.LogInformation("Check Db to see if updated");
             return View("Edit");
         }
+
+
+        //UPDATE - GET
+        [HttpGet]
+        public async Task<IActionResult> EditNew()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            else
+            {
+                return View("Update");
+            }
+        }
+
 
         //Reset Password
         //[HttpGet]

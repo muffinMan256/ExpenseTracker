@@ -8,6 +8,7 @@ using ToastNotification.Extensions;
 using Serilog.Formatting.Json;
 using Serilog;
 using ExpenseTracker.Data;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -49,6 +50,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>
     .AddRoles<IdentityRole>()
     .AddDefaultTokenProviders();
 
+
 //Cookies
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -60,6 +62,13 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.ReturnUrlParameter = new PathString("/Dashboard/Index");
     options.SlidingExpiration = true;
 });
+
+//Claims
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Test", policy => policy.RequireClaim("Authentication", "Demo"));
+});
+
 
 
 // Notificari
