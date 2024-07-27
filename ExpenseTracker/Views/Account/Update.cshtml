@@ -1,81 +1,189 @@
 ﻿@model ExpenseTracker.Data.AppUser
+@{
+    Layout = "_Layout";
+}
 
 
-<section>
-    <form asp-action="Update" asp-controller="Account" method="post">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <div class="row mt-2 justify-content-center">
-            <div class="card card-information">
-                <div class="card-header">
-                    <h2>Here you can update your user</h2>
-                </div>
-                <div class="card-body">
-                    @*Row1*@
-                    <div class="row">
-                        @*UserName*@
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="UserName" class="col-form-label small font-w-700 dark-color m-0px">Add your Username</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
-                                    <input required type="text" class="form-control text-box single-line" asp-for="UserName" placeholder="@Model.UserName"  />
-                                </div>
-                                <span asp-validation-for="UserName" class="text-danger"></span>
-                            </div>
-                        </div>
-                        @*Email*@
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="Email" class="col-form-label small font-w-700 dark-color m-0px"></label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
-                                    <input required type="text" class="form-control text-box single-line" asp-for="Email" placeholder="@Model.Email" />
-                                </div>
-                                <span asp-validation-for="Email" class="text-danger"></span>
-                            </div>
-                        </div>
+@*User*@
+@if (User.IsInRole("User"))
+{
+    <section>
+        <form asp-action="Update" asp-controller="Account" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="row mt-2 justify-content-center">
+                <div class="card card-information">
+                    <div class="card-header">
+                        <h2>Update User @Model.UserName</h2>
                     </div>
-                    @*Row2*@
-                    <div class="row">
-                        @*FirstName*@
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label asp-for="FirstName" class="col-form-label small font-w-700 dark-color m-0px"></label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fa-solid fa-address-card"></i></span>
-                                    <input type="text" class="form-control text-box single-line" asp-for="FirstName" placeholder="@Model.FirstName" />
-                                </div>
-                                <span asp-validation-for="FirstName" class="text-danger"></span>
-                            </div>
-                        </div>
-                        @*LastName*@
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label asp-for="LastName" class="col-form-label small font-w-700 dark-color m-0px"></label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fa-solid fa-address-card"></i></span>
-                                    <input type="text" class="form-control text-box single-line" asp-for="LastName" placeholder="@Model.LastName"  />
+                    <div class="card-body">
+                        @*Row1*@
+                        <div class="row">
+                            @*UserName*@
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="UserName" class="col-form-label small font-w-700 dark-color m-0px">Username</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                                        <input required type="text" class="form-control text-box single-line" asp-for="UserName" placeholder="@Model.UserName" />
+                                    </div>
+                                    <span asp-validation-for="UserName" class="text-danger"></span>
                                 </div>
                             </div>
-                        </div>
-                        @*Birthday*@
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label asp-for="Birthday" class="col-form-label small font-w-700 dark-color m-0px"></label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fa-solid fa-cake-candles"></i></span>
-                                    <input type="date" class="form-control text-box single-line" asp-for="Birthday" />
+                            @*Email*@
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Email" class="col-form-label small font-w-700 dark-color m-0px"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                                        <input required type="text" class="form-control text-box single-line" asp-for="Email" placeholder="@Model.Email" />
+                                    </div>
+                                    <span asp-validation-for="Email" class="text-danger"></span>
                                 </div>
-                                <span asp-validation-for="Birthday" class="text-danger"></span>
                             </div>
                         </div>
-                    </div>
-                    @*Update Button*@
-                    <div class="d-flex">
-                        <button class="btn btn-primary btn-sm w-auto">Update your User</button>
+                        @*Row2*@
+                        <div class="row">
+                            @*FirstName*@
+                            <div class="col-md-4 mt-2">
+                                <div class="form-group">
+                                    <label asp-for="FirstName" class="col-form-label small font-w-700 dark-color m-0px"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-solid fa-address-card"></i></span>
+                                        <input type="text" class="form-control text-box single-line" asp-for="FirstName" placeholder="@Model.FirstName" />
+                                    </div>
+                                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            @*LastName*@
+                            <div class="col-md-4 mt-2">
+                                <div class="form-group">
+                                    <label asp-for="LastName" class="col-form-label small font-w-700 dark-color m-0px"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-solid fa-address-card"></i></span>
+                                        <input type="text" class="form-control text-box single-line" asp-for="LastName" placeholder="@Model.LastName" />
+                                    </div>
+                                    <span asp-validation-for="LastName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            @*Birthday*@
+                            <div class="col-md-4 mt-2">
+                                <div class="form-group">
+                                    <label asp-for="Birthday" class="col-form-label small font-w-700 dark-color m-0px"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-solid fa-cake-candles"></i></span>
+                                        <input type="date" class="form-control text-box single-line" asp-for="Birthday" />
+                                    </div>
+                                    <span asp-validation-for="Birthday" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        @*Update Button*@
+                        <div class="d-flex mt-2">
+                            <button class="btn btn-primary btn-sm w-auto">Update User</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </form>
-</section>
+        </form>
+    </section>
+}
+
+
+@*Admin*@
+@if (User.IsInRole("Admin"))
+{
+    <section>
+        <form asp-action="Update" asp-controller="Account" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="row mt-2 justify-content-center">
+                <div class="card card-information">
+                    <div class="card-header">
+                        <h2>Update User @Model.UserName</h2>
+                    </div>
+                    <div class="card-body">
+                        @*Row1*@
+                        <div class="row">
+                            @*UserName*@
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="UserName" class="col-form-label small font-w-700 dark-color m-0px">Username</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                                        <input required type="text" class="form-control text-box single-line" asp-for="UserName" placeholder="@Model.UserName" />
+                                    </div>
+                                    <span asp-validation-for="UserName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            @*Email*@
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Email" class="col-form-label small font-w-700 dark-color m-0px"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                                        <input required type="text" class="form-control text-box single-line" asp-for="Email" placeholder="@Model.Email" />
+                                    </div>
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        @*Row2*@
+                        <div class="row">
+                            @*FirstName*@
+                            <div class="col-md-3 mt-2">
+                                <div class="form-group">
+                                    <label asp-for="FirstName" class="col-form-label small font-w-700 dark-color m-0px"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-solid fa-address-card"></i></span>
+                                        <input type="text" class="form-control text-box single-line" asp-for="FirstName" placeholder="@Model.FirstName" />
+                                    </div>
+                                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            @*LastName*@
+                            <div class="col-md-3 mt-2">
+                                <div class="form-group">
+                                    <label asp-for="LastName" class="col-form-label small font-w-700 dark-color m-0px"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-solid fa-address-card"></i></span>
+                                        <input type="text" class="form-control text-box single-line" asp-for="LastName" placeholder="@Model.LastName" />
+                                    </div>
+                                    <span asp-validation-for="LastName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            @*Birthday*@
+                            <div class="col-md-3 mt-2">
+                                <div class="form-group">
+                                    <label asp-for="Birthday" class="col-form-label small font-w-700 dark-color m-0px"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-solid fa-cake-candles"></i></span>
+                                        <input type="date" class="form-control text-box single-line" asp-for="Birthday" />
+                                    </div>
+                                    <span asp-validation-for="Birthday" class="text-danger"></span>
+                                </div>
+                            </div>
+                            @*Lockout*@
+                            <div class="col-md-3 mt-2">
+                                <div class="form-group">
+                                    <label asp-for="LockoutEnabled" class="col-form-label small font-w-700 dark-color m-0px"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-solid fa-cake-candles"></i></span>
+                                        <select class="form-control text-box single-line" asp-for="LockoutEnabled" placeholder="@Model.LockoutEnabled">
+                                            <option value=""></option>
+                                            <option value="1">Yes</option>
+                                            <option value="0">No</option>
+                                        </select>
+                                    </div>
+                                    <span asp-validation-for="LockoutEnabled" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        @*Update Button*@
+                        <div class="d-flex mt-2">
+                            <button class="btn btn-primary btn-sm w-auto">Update User</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </section>
+}

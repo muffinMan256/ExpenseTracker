@@ -7,8 +7,8 @@ namespace ExpenseTracker.Models.AutoMapperProfile
     {
         public CategoryProfile()
         {
-            CreateMap<CategoryModel, CategoryModel>();
-            CreateMap<CategoryModel, CategoryModel>();
+            CreateMap<Category, CategoryModel>();
+            CreateMap<CategoryModel, Category>();
         }
     }
 

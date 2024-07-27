@@ -1,11 +1,20 @@
-﻿using System.Collections;
-using System.ComponentModel.DataAnnotations;
+﻿using ExpenseTracker.Data;
 using System.ComponentModel.DataAnnotations.Schema;
-using ExpenseTracker.Data;
-using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
-namespace ExpenseTracker.Models
+namespace ExpenseTracker.Models.ViewModel
 {
+    public class ViewModelCatTrans
+    {
+        public List<ExpenseTracker.Models.CategoryModel>? CategoriesList { get; set; }
+        public List<Transaction>? TransactionsList { get; set; }
+
+        public CategoryModel? Categories { get; set; }
+
+        public TransactionModel? Transactions { get; set; }
+
+    }
+
     public class TransactionModel
     {
         [Key]
@@ -25,9 +34,7 @@ namespace ExpenseTracker.Models
 
         [Required(ErrorMessage = "This field is mandatory!")]
         public DateTime Date { get; set; } = DateTime.Now;
-
-        [Required(ErrorMessage = "This field is mandatory!")]
-        public Category? Category {get; set; }
-
     }
+
+
 }

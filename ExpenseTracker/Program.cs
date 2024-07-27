@@ -8,7 +8,12 @@ using ToastNotification.Extensions;
 using Serilog.Formatting.Json;
 using Serilog;
 using ExpenseTracker.Data;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
+using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
+using ExpenseTracker.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +24,27 @@ var configuration = new ConfigurationBuilder()
     .AddJsonFile($"appsettings.Development.json", optional: true)
     .AddEnvironmentVariables()
     .Build();
+
+//GoogleAuthentication
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+
+    })
+    .AddCookie(options =>
+    {
+        options.ExpireTimeSpan = TimeSpan.FromMilliseconds(10);
+        options.SlidingExpiration = false;
+    })
+    .AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
+    {
+        options.ClientId = builder.Configuration.GetSection("GoogleKeys:ClientId").Value;
+        options.ClientSecret = builder.Configuration.GetSection("GoogleKeys:ClientSecret").Value;
+        options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email", ClaimValueTypes.Email);
+
+    });
+
 
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(configuration)
@@ -43,6 +69,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>
         options.Password.RequireDigit = true;
         options.Password.RequireNonAlphanumeric = false;
         options.User.RequireUniqueEmail = true;
+        options.SignIn.RequireConfirmedEmail = false;
 
 
     })
@@ -50,6 +77,8 @@ builder.Services.AddIdentity<AppUser, IdentityRole>
     .AddRoles<IdentityRole>()
     .AddDefaultTokenProviders();
 
+//Email Sending Service
+//builder.Services.AddTransient<IMyEmailSender, MyEmailSender>();
 
 //Cookies
 builder.Services.ConfigureApplicationCookie(options =>
@@ -62,13 +91,6 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.ReturnUrlParameter = new PathString("/Dashboard/Index");
     options.SlidingExpiration = true;
 });
-
-//Claims
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("Test", policy => policy.RequireClaim("Authentication", "Demo"));
-});
-
 
 
 // Notificari
@@ -115,6 +137,19 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Dashboard}/{action=Index}/{id?}");
+
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    var roles = new[] { "Admin", "User" };
+
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+            await roleManager.CreateAsync(new IdentityRole(role));
+    }
+}
 
 try
 {

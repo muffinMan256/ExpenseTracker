@@ -6,24 +6,20 @@ namespace ExpenseTracker.Data
 {
     public class AppUser : IdentityUser
     {
-        [Required(ErrorMessage = "This field is mandatory!")]
         [Display(Name = "First Name")]
         public string? FirstName { get; set; }
 
-        [Required(ErrorMessage = "This field is mandatory!")]
         [Display(Name = "Last Name")]
         public string? LastName { get; set; }
 
-        [Required(ErrorMessage = "This field is mandatory!")]
         [Display(Name = "Select your Birthday")]
         public DateTime? Birthday { get; set; }
 
-        public bool RememberMe { get; set; }
+        public bool? RememberMe { get; set; }
 
     }
     public class Category
     {
-
         [Key]
         public int CategoryId { get; set; }
 

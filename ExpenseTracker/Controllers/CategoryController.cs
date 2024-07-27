@@ -5,9 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using ToastNotification.Abstractions;
 using ExpenseTracker.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ExpenseTracker.Controllers
 {
+    [Authorize(Roles = "Admin, User")]
     public class CategoryController : Controller
     {
         private readonly UserManager<AppUser> _userManager;
@@ -34,7 +36,6 @@ namespace ExpenseTracker.Controllers
             var categories = await _context.Categories.ToListAsync();
             return View(categories);
         }
-
 
         // ADD - GET
         public IActionResult Add()
@@ -68,11 +69,10 @@ namespace ExpenseTracker.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            _notyfService.Warning("Atentie! Modelul nu a fost valid.");
+            _notyfService.Warning("Atentie! M nu a fost valid.");
             return View(model);
 
         }
-
 
         // EDIT - GET
         [HttpGet]
@@ -86,7 +86,6 @@ namespace ExpenseTracker.Controllers
             var model = _mapper.Map<CategoryModel>(category);
             return View(model);
         }
-
         // EDIT - POST
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -123,7 +122,6 @@ namespace ExpenseTracker.Controllers
         {
             return _context.Categories.Any(e => e.CategoryId == id);
         }
-
 
         // DELETE - POST
         [HttpPost, ActionName("Delete")]

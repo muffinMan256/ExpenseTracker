@@ -1,0 +1,63 @@
+﻿@model LoginModel
+
+<section class="wrapper">
+    <div class="form signup">
+        <header>LOGIN</header>
+        <form id="account-login" asp-action="Login" asp-controller="Account" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+            @*             <div class="form-floating mb-3 text-black">
+                <input asp-for="@Model.Email" class="form-control" autocomplete="email" aria-required="true" placeholder="name@example.com" />
+                <label asp-for="@Model.Email" class="form-label">Email Address <i style="display: inline-flex" class="fa-solid fa-envelope"></i></label>
+                <span asp-validation-for="@Model.Email" class="text-danger"></span>
+            </div> *@
+            <div class="form-floating mb-3">
+                <input asp-for="@Model.UserName" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com"/>
+                <label asp-for="@Model.UserName">Username <i class="fa-solid fa-user-astronaut"></i></label>
+                <span asp-validation-for="@Model.UserName" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-1 text-black">
+                <input asp-for="@Model.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password"/>
+                <label asp-for="@Model.Password" class="form-label">Password <i class="fa-solid fa-key"></i> </label>
+                <span asp-validation-for="@Model.Password" class="text-danger"></span>
+            </div>
+            <div class="row justify-content-left">
+                <div class="col-md-6">
+                    <div class="checkbox mb-2">
+                        <input class="form-check-input" asp-for="@Model.RememberMe"/>
+                        <label asp-for="@Model.RememberMe" class="form-label" style="color: white"> @Html.DisplayNameFor(m => m.RememberMe)</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <button id="loginButton" type="submit" class="w-100 btn btn-lg btn-warning">Login</button>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <a asp-controller="Google" asp-action="Login" class="btn btn-primary"><i class="fa-brands fa-google"></i>&nbsp; Login with Google</a>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="form login">
+        <a style="text-decoration: none !important;" asp-controller="Account" asp-action="Register"><header>REGISTER</header></a>
+    </div>
+    <script>
+        const wrapper = document.querySelector(".wrapper"),
+          signupHeader = document.querySelector(".signup header"),
+          loginHeader = document.querySelector(".login header");
+        loginHeader.addEventListener("click", () => {
+          wrapper.classList.add("active");
+        });
+        signupHeader.addEventListener("click", () => {
+          wrapper.classList.remove("active");
+        });
+      </script>
+</section>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

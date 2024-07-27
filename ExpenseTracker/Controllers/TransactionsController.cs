@@ -5,10 +5,14 @@ using ExpenseTracker.Models;
 using Microsoft.AspNetCore.Identity;
 using ToastNotification.Abstractions;
 using ExpenseTracker.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using ExpenseTracker.Models.ViewModel;
+using TransactionModel = ExpenseTracker.Models.TransactionModel;
 
 namespace ExpenseTracker.Controllers
 {
+    [Authorize]
     public class TransactionsController : Controller
     {
         private readonly UserManager<AppUser> _userManager;
@@ -18,7 +22,9 @@ namespace ExpenseTracker.Controllers
         private readonly ILogger<AccountController> _logger;
         private IMapper _mapper;
 
-        public TransactionsController(INotyfService notyfService, ApplicationDbContext context, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ILogger<AccountController> logger, IMapper mapper)
+        public TransactionsController(INotyfService notyfService, ApplicationDbContext context,
+            UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ILogger<AccountController> logger,
+            IMapper mapper)
         {
             _context = context;
             _userManager = userManager;
@@ -29,190 +35,100 @@ namespace ExpenseTracker.Controllers
         }
 
 
+
         // INDEX - GET
         public async Task<IActionResult> Index()
         {
-            var transactions = await _context.Transactions.Include(t => t.Category).ToListAsync();
-
-            var model = transactions.Select(a => new TransactionModel
-            {
-                TransactionId = a.TransactionId,
-                CategoryId = a.CategoryId,
-                Amount = a.Amount,
-                Note = a.Note,
-                Date = a.Date,
-                CategoryTitleWithIcon = a.CategoryTitleWithIcon,
-                FormattedAmount = a.FormattedAmount,
-                Category = a.Category
-            }
-            ).ToList();
-            return View(model);
+            var transactions = await _context.Transactions.ToListAsync();
+            return View(transactions);
         }
 
-        public async Task<IActionResult> AssignTransactions(TransactionModel model)
+
+
+        // CREATE - GET
+        public async Task<IActionResult> Create()
         {
-            var category = await _context.Categories.FindAsync(model.CategoryId);
-
-            if (category == null)
+            List<ExpenseTracker.Models.CategoryModel> categories = await _context.Categories.ToListAsync();
+            List<Transaction> transactions = new List<Transaction>();
+            ViewModelCatTrans ctvm = new ViewModelCatTrans()
             {
-                _logger.LogInformation("Category not found.");
-                _notyfService.Error("Category not found.");
-                return View("Index", new List<TransactionModel>());
-            }
+                CategoriesList = categories,
+                TransactionsList = transactions
+            };
 
-            ViewBag.Categories = PopulateCategory(model.CategoryId);
-
+            return View(ctvm);
+        }
+        // CREATE - Post
+        [HttpPost]
+        public async Task<IActionResult> Create(ViewModelCatTrans model)
+        {
             if (ModelState.IsValid)
             {
-                // Create a new Transaction object
                 var transaction = new TransactionModel()
                 {
-                    CategoryId = model.CategoryId,
-                    Amount = model.Amount,
-                    Note = model.Note,
-                    Date = model.Date
+                    CategoryId = model.Transactions.CategoryId,
+                    Amount = model.Transactions.Amount,
+                    Note = model.Transactions.Note,
+                    Date = model.Transactions.Date
                 };
 
                 await _context.Transactions.AddAsync(transaction);
                 await _context.SaveChangesAsync();
-                _logger.LogInformation($"Transaction with ID {transaction.TransactionId} added to database.");
-                _notyfService.Success("Transaction added successfully.");
-
+                _logger.LogInformation($"Tranzactioa cu id-ul {model.Transactions.TransactionId} a fost adaugata");
+                _notyfService.Success("Tranzactia a fost adaugata cu success.");
                 return RedirectToAction("Index");
             }
 
-            // If ModelState is not valid, return to Index view with empty list
-            return View("Index", new List<TransactionModel>());
-        }
-
-        [HttpGet]
-        public IActionResult Create()
-        {
-
-            ViewBag.Categories = PopulateCategory(0);
-            return View();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Create(TransactionModel model)
-        {
-            var category = await _context.Categories.FindAsync(model.CategoryId);
-
-            if (category is null)
-            {
-                _logger.LogInformation("Categoria nu a fost gasita.");
-                return View();
-
-            }
-
-            var transaction = new TransactionModel()
-            {
-                CategoryId = model.CategoryId,
-                Amount = model.Amount,
-                Note = model.Note,
-                Date = model.Date,
-            };
-
-            if (ModelState.IsValid)
-            {
-                await _context.Transactions.AddAsync(transaction);
-                await _context.SaveChangesAsync();
-                _logger.LogInformation($"transactia cu numarul {transaction.TransactionId} s-a adaugat in baza de date");
-                _notyfService.Success("Tranzactia a fost adaugata.");
-                return RedirectToAction("Index");
-            }
-
-            return View("Index");
-        }
-
-
-
-
-        [HttpGet]
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                _logger.LogInformation("Nu exista transactia in baza de date.");
-                _notyfService.Error("Eroare.");
-
-            }
-
-            var transaction = await _context.Transactions.FindAsync(id);
-            if (transaction == null)
-            {
-                _logger.LogInformation("Eroare gasire tranzactie");
-                _notyfService.Information("Eroare");
-            }
-
-            var model = _mapper.Map<TransactionModel>(transaction);
-            ViewBag.Categories = PopulateCategory(model.CategoryId);
-
+            _notyfService.Warning("Atentie! M nu a fost valid.");
             return View(model);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(TransactionModel model)
+
+
+        // EDIT - GET
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
         {
-
-            if (ModelState.IsValid)
+            var transaction = await _context.Transactions.FindAsync(id);
+            if (transaction == null)
             {
-                try
-                {
-                    _context.Update(model);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.Transactions.Any(t => t.TransactionId == model.TransactionId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-
+                return NotFound();
             }
-            ViewBag.Categories = PopulateCategory(model.CategoryId);
-            return View();
+
+            var model = _mapper.Map<TransactionModel>(transaction);
+            return View(model);
         }
 
 
+
+
+        //DELETE - POST
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var transaction = await _context.Transactions.FindAsync(id);
-            if (transaction != null)
+            try
             {
-                _logger.LogInformation("Tranzactia a fost stearsa din baza de date.");
-                _notyfService.Information("Tranzactia a fost stearsa.");
+                var transaction = await _context.Transactions.FindAsync(id);
+                if (transaction == null)
+                {
+                    _logger.LogError("Tranzactia nu a fost gasita");
+                    return NotFound();
+                }
 
+                _logger.LogInformation($"Tranzactia cu id-ul {id} a fost stearsa");
+                _notyfService.Success("Tranzactia a fost stearsa.");
                 _context.Transactions.Remove(transaction);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
-
             }
-            _notyfService.Information("Can delete record");
-            return RedirectToAction(nameof(Index));
-        }
-
-        private async Task<IEnumerable<SelectListItem>> PopulateCategory(int categoryId)
-        {
-            var lstCategory = await _context.Categories.ToListAsync();
-
-            Category defaultCategory = new Category() { CategoryId = 0, Title = "Choose Category" };
-            //lstCategory.Insert(0, defaultCategory);
-            return lstCategory.Select(d => new SelectListItem()
+            catch (Exception)
             {
-                Text = d.TitleWithIcon,
-                Value = d.CategoryId.ToString(),
-                Selected = categoryId == d.CategoryId ? true : false
-            }).ToList();
+                _logger.LogError($"Error deleting category with ID {id}");
+                throw;
+            }
         }
-    }
+
 }
+}
+
