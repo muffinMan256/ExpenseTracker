@@ -1,0 +1,74 @@
+﻿@model ExpenseTracker.Models.ViewModel.ViewModelCatTrans
+
+
+<section>
+    <form asp-action="EditTask" asp-controller="TaskListAndEventList" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row mt-2 justify-content-center">
+            <div class="card card-information">
+                <div class="card-header">
+                    <h2>Update Task</h2>
+                </div>
+                <div class="card-body">
+                    @*Row1*@
+                    <div class="row">
+                        @* Task Name *@
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-form-label small font-w-700 dark-color m-0px">Name</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control text-box single-line" asp-for="Tasks.TaskName" placeholder="Tasks.TaskName" required />
+                                </div>
+                                <span asp-validation-for="Tasks.TaskName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        @* Task Date *@
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-form-label small font-w-700 dark-color m-0px">Date</label>
+                                <div class="input-group">
+                                    <input type="date" class="form-control text-box single-line" asp-for="Tasks.TaskDate" placeholder="Tasks.TaskDate" required />
+                                </div>
+                                <span asp-validation-for="Tasks.TaskDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        @* Task Prority *@
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-form-label small font-w-700 dark-color m-0px">Priority</label>
+                                <div class="input-group">
+                                    <select class="form-select text-box single-line" asp-for="@Model.Tasks.TaskPriority" placeholder="@Model.Tasks.TaskPriority">
+                                        <option value="High">High</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="Low">Low</option>
+                                    </select>
+                                </div>
+                                <span asp-validation-for="Tasks.TaskPriority" class="text-danger"></span>
+                            </div>
+                        </div>
+                        @* Task Status *@
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-form-label small font-w-700 dark-color m-0px">Status</label>
+                                <div class="input-group">
+                                    <select class="form-select text-box single-line" asp-for="@Model.Tasks.TaskStatus" placeholder="@Model.Tasks.TaskStatus">
+                                        <option value="false">Pending</option>
+                                        <option value="true">Completed</option>
+                                    </select>
+                                </div>
+                                <span asp-validation-for="Tasks.TaskStatus" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" asp-for="UserId" />
+                    @*Create Button*@
+                    <div class="d-flex">
+                        <button class="btn btn-primary btn-sm w-auto">Update Task</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</section>

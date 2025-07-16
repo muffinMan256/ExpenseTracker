@@ -1,59 +1,56 @@
-html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-  font-family: "Inter";
-}
-
-body {
-  margin-bottom: 60px;
-  background-color: #ffffff;
-  color: black;
-  overflow:hidden;
-}
-
-.main-content{
-    margin-left: 290px;
-    overflow-y:auto;
+/* Base main-content */
+.main-content {
+    margin-left: 0; /* Default no margin */
+    transition: margin-left 0.3s ease; /* Smooth transition for margin */
+    overflow-y: auto;
     height: 90vh;
+    padding: 20px;
 }
 
-
-.slider {
-    -webkit-appearance: none;
-    width: 75px;
-    height: 15px;
-    border-radius: 5px;
-    background: #d3d3d3;
-    outline: none;
-    opacity: 0.7;
-    -webkit-transition: .2s;
-    transition: opacity .2s;
+/* Sidebar expanded on large screens (when sidebar is open) */
+.sidebar-expanded .main-content {
+    margin-left: 290px; /* Shift content when sidebar is expanded on larger screens */
 }
 
-    .slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 25px;
-        height: 25px;
-        border-radius: 50%;
-        background: #04AA6D;
-        cursor: pointer;
+/* Small screen: sidebar acts as an overlay */
+@media (max-width: 767px) {
+    .main-content {
+        margin-left: 0; /* No margin for small screens */
     }
 
-    .slider::-moz-range-thumb {
-        width: 25px;
-        height: 25px;
-        border-radius: 50%;
-        background: #04AA6D;
-        cursor: pointer;
+    /* Sidebar as an overlay on small screens */
+    ._SideBar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 290px;
+        height: 100%;
+        background-color: white; /* Ensure the sidebar has a background */
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Slight shadow for overlay effect */
+        z-index: 1050;
+        transform: translateX(-100%); /* Initially hide the sidebar off-screen */
+        transition: transform 0.3s ease; /* Smooth transition for sidebar visibility */
     }
+
+    /* When the sidebar is expanded (visible) */
+    .sidebar-expanded ._SideBar {
+        transform: translateX(0); /* Slide the sidebar into view */
+    }
+
+    /* Overlay to darken the background when sidebar is open */
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent dark overlay */
+        z-index: 1049; /* Below the sidebar but above the content */
+        display: none; /* Hidden by default */
+    }
+
+    /* Display overlay when sidebar is expanded */
+    .sidebar-expanded .sidebar-overlay {
+        display: block; /* Show the overlay when sidebar is visible */
+    }
+}

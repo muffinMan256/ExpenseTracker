@@ -1,29 +1,29 @@
 ﻿@model IEnumerable<ExpenseTracker.Models.CategoryModel>
 
-
+@* Admin Header *@
 @if (User.IsInRole("Admin"))
 {
-    <div class="container">
-        <div class="row justify-content-center mb-2">
-            <h2 class="text-center">Admin Categories Dashboard</h2>
-        </div>
-    </div>
-    <div class="row my-4">
-        <div class="col-md-12 d-flex justify-content-end">
-            <a asp-action="Add" class="btn btn-warning mt-2"><i class="fa-solid fa-square-plus"></i>&nbsp;New Category</a>
-        </div>
+    <div class="d-flex justify-content-between align-items-center my-4">
+        <h2 class="fw-bold text-primary mb-0">Admin Categories Dashboard</h2>
+        <a asp-action="Add" class="btn btn-success">
+            <i class="fa-solid fa-plus"></i>&nbsp; New Category
+        </a>
     </div>
 }
-@*Data Grid*@
-<div class="row mt-2">
-    <div class="col-md-12">
-        <div class="table-responsive-sm">
-            <table class="table table-bordered table-hover" style="width:100%">
-                <thead>
+
+@* Category Table Card *@
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white border-bottom">
+        <h5 class="mb-0">Category List</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
                     <tr>
                         <th class="text-center">Category</th>
                         <th class="text-center">Type</th>
-                        <th class="text-center">Creation Date</th>
+                        <th class="text-center">Created</th>
                         <th class="text-center">Note</th>
                         <th class="text-center">Priority</th>
                         <th class="text-center">Recurring</th>
@@ -34,64 +34,44 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (Model != null)
+                    @if (Model != null && Model.Any())
                     {
                         @foreach (var category in Model)
                         {
                             <tr>
                                 <td class="text-center">@category.TitleWithIcon</td>
                                 <td class="text-center">
-                                    @if (category.Type == "Income")
-                                    {
-                                        <span class="badge bg-success">@category.Type</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-danger">@category.Type</span>
-                                    }
+                                    <span class="badge bg-@(category.Type == "Income" ? "success" : "danger")">
+                                        @category.Type
+                                    </span>
                                 </td>
                                 <td class="text-center">@category.CreationDate</td>
                                 <td class="text-center">@category.Note</td>
                                 <td class="text-center">
-                                    @if (category.Priority == "High")
-                                    {
-                                        <span class="badge bg-danger">@category.Priority</span>
-                                    }
-                                    else if (category.Priority == "Medium")
-                                    {
-                                        <span class="badge bg-warning">@category.Priority</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-success">@category.Priority</span>
-                                    }
+                                    <span class="badge bg-@(
+                                        category.Priority == "High" ? "danger" :
+                                        category.Priority == "Medium" ? "warning" :
+                                        "success"
+                                    )">@category.Priority</span>
                                 </td>
                                 <td class="text-center">
-                                    @if (category.Recurring == "1")
-                                    {
-                                        <p>Yes</p>
-                                    }
-                                    else
-                                    {
-                                        <p>No</p>
-                                    }
+                                    @(category.Recurring == "1" ? "Yes" : "No")
                                 </td>
-                                
                                 @if (User.IsInRole("Admin"))
                                 {
                                     <td class="text-center">
-                                        <form asp-action="Delete" asp-controller="Category" method="post">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="id" value="@category.CategoryId"/>
-                                            <button type="submit" class="btn btn-danger mt-2" onclick="return confirm('Do you want to delete this record?');">
-                                                <i class="fa-solid fa-trash-can"></i> &nbsp;Delete
-                                            </button>
-                                        </form>
-                                        <a asp-action="Edit" asp-route-id="@category.CategoryId">
-                                            <button type="submit" class="btn btn-warning mt-2">
-                                                <i class="fa-solid fa-pen"></i> &nbsp;Edit
-                                            </button>
-                                        </a>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <a asp-action="Edit" asp-route-id="@category.CategoryId" class="btn btn-sm btn-warning">
+                                                <i class="fa-solid fa-pen"></i>
+                                            </a>
+                                            <form asp-action="Delete" asp-controller="Category" method="post" class="d-inline delete-form">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@category.CategoryId" />
+                                                <button type="submit" class="btn btn-sm btn-danger delete-btn">
+                                                    <i class="fa-solid fa-trash-can"></i>
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 }
                             </tr>
@@ -100,7 +80,7 @@
                     else
                     {
                         <tr>
-                            <td colspan="3" class="text-center">No categories available.</td>
+                            <td colspan="7" class="text-center text-muted">No categories available.</td>
                         </tr>
                     }
                 </tbody>
@@ -108,3 +88,30 @@
         </div>
     </div>
 </div>
+
+@* SweetAlert2 for Delete Confirmation *@
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+                const form = this.closest('.delete-form');
+
+                Swal.fire({
+                    title: "Delete this category?",
+                    text: "This action cannot be undone.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#198754",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, delete it"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+</script>

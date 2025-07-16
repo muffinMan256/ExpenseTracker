@@ -46,50 +46,78 @@ namespace ExpenseTracker.Controllers
         //GOOGLE RESPONSE - Post
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> GoogleResponse()
+        public async Task<IActionResult> GoogleResponse(AppUser model)
         {
-            // Authenticate the user using Google
             var result = await HttpContext.AuthenticateAsync(IdentityConstants.ExternalScheme);
-            var claims = result.Principal.Identities.FirstOrDefault().Claims.Select(claim => new
+            var claims = result.Principal.Identities.FirstOrDefault()?.Claims.Select(claim => new
             {
-                claim.Issuer,
                 claim.OriginalIssuer,
                 claim.Type,
                 claim.Value
             });
-            var emailClaim = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+
+            // Retrieve the email claim
+            var emailClaim = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+            if (string.IsNullOrEmpty(emailClaim))
+            {
+                _logger.LogWarning("Email claim not found.");
+                _notyfService.Error("Email C is missing.");
+                return RedirectToAction("Login", "Account");
+            }
+
+           
             var user = await _userManager.FindByEmailAsync(emailClaim);
-                    if (user == null)
-                    {
-                        // Optionally, register the user if they don't exist
-                        user = new AppUser()
-                        {
-                            UserName = emailClaim,
-                            Email = emailClaim
 
-                        };
-                        var createResult = await _userManager.CreateAsync(user);
-                        if (!createResult.Succeeded)
-                        {
-                            _logger.LogError("User registration failed.");
-                            _notyfService.Error("User registration failed");
-                            return RedirectToAction("Login");
-                        }
-                        else
-                        {
-                            var resultRole = await _userManager.AddToRoleAsync(user, "User");
-                            _logger.LogInformation($"User {user.UserName} with role User created successfully.");
-                            _notyfService.Information("User created successfully.");
-                }   
-                    }
-                    // Sign in the user
-                    await _signInManager.SignInAsync(user, isPersistent: false);
+            
+            if (user != null)
+            {
+               
+                if (user.LockoutEnabled == false)
+                {
+                    _logger.LogInformation($"User {user.Email} is locked out and cannot log in.");
+                    _notyfService.Error("Your account is locked. Please contact support.");
+                    return RedirectToAction("Login", "Account");
+                }
 
-                    // Clear the external authentication cookie to prevent looping
-                    await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+                
+                await _signInManager.SignInAsync(user, isPersistent: false);
+                await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
-                    _logger.LogInformation($"User {user.Email} logged in with Google.");
-                    return RedirectToAction("Index", "Dashboard");
+                _logger.LogInformation($"User {user.Email} logged in with Google.");
+                return RedirectToAction("Index", "Dashboard");
+            }
+            else
+            {
+               
+                user = new AppUser()
+                {
+                    UserName = emailClaim,
+                    Email = emailClaim
+                };
+
+                var createResult = await _userManager.CreateAsync(user);
+                if (!createResult.Succeeded)
+                {
+                    _logger.LogError("User registration failed.");
+                    _notyfService.Error("User registration failed");
+                    return RedirectToAction("Login");
+                }
+                else
+                {
+                    var resultRole = await _userManager.AddToRoleAsync(user, "User");
+                    _logger.LogInformation($"User {user.UserName} with role User created successfully.");
+                    _notyfService.Information("User created successfully.");
+                }
+
+               
+                await _signInManager.SignInAsync(user, isPersistent: false);
+                await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+
+                _logger.LogInformation($"User {user.Email} logged in with Google.");
+                return RedirectToAction("Index", "Dashboard");
+            }
         }
+
+
     }
 }

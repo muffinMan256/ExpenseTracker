@@ -26,19 +26,20 @@ namespace ExpenseTracker.Controllers
         private readonly ApplicationDbContext _context;
         private readonly INotyfService _notyfService;
         private readonly ILogger<AccountController> _logger;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IHostEnvironment _webhost;
         //private readonly MyEmailSender _myEmailSender;
 
-        public AccountController(INotyfService notyfService, ApplicationDbContext context, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ILogger<AccountController> logger)
+        public AccountController(INotyfService notyfService, ApplicationDbContext context, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ILogger<AccountController> logger, IHttpContextAccessor httpContextAccessor, IHostEnvironment webhost)
         {
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
+            _webhost = webhost;
             _notyfService = notyfService;
         }
-
-
-
         //REGISTER - GET
         [HttpGet]
         [AllowAnonymous]
@@ -56,6 +57,7 @@ namespace ExpenseTracker.Controllers
             {
                 if (ModelState.IsValid)
                 {
+                    string defaultImagePath = Url.Content("~/defaultUser.svg");
                     if (model.Email == "admin@admin.com")
                     {
                         var userAdmin = await _userManager.FindByEmailAsync(model.Email);
@@ -64,7 +66,8 @@ namespace ExpenseTracker.Controllers
                             userAdmin = new AppUser
                             {
                                 Email = model.Email,
-                                UserName = model.UserName
+                                UserName = model.UserName,
+                                ProfileImage = defaultImagePath
                             };
                             var createResult = await _userManager.CreateAsync(userAdmin, model.Password);
                             if (createResult.Succeeded)
@@ -74,6 +77,10 @@ namespace ExpenseTracker.Controllers
                                 {
                                     _logger.LogError("Failed to add admin role to user.");
                                     _notyfService.Error("Error: A.R.");
+                                }
+                                else
+                                {
+                                    HttpContext.Session.SetString("ProfileImage", defaultImagePath);
                                 }
                             }
                             else
@@ -111,7 +118,8 @@ namespace ExpenseTracker.Controllers
                         var user = new AppUser
                         {
                             Email = model.Email,
-                            UserName = model.UserName
+                            UserName = model.UserName,
+                            ProfileImage = defaultImagePath
                         };
 
                         var result = await _userManager.CreateAsync(user, model.Password);
@@ -122,12 +130,12 @@ namespace ExpenseTracker.Controllers
                             {
                                 _logger.LogInformation($"User {user.UserName} with role User created successfully.");
                                 _notyfService.Information("User created successfully.");
+                                HttpContext.Session.SetString("ProfileImage", defaultImagePath);
                                 return RedirectToAction("Login", "Account");
                             }
                             else
                             {
                                 _logger.LogError($"Failed to add role to user {user.UserName}.");
-                                // Optionally delete the user if adding to role fails
                                 await _userManager.DeleteAsync(user);
                             }
                         }
@@ -184,7 +192,6 @@ namespace ExpenseTracker.Controllers
 
 
         //LOGIN - GET
-        
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Login()
@@ -205,9 +212,18 @@ namespace ExpenseTracker.Controllers
                     _notyfService.Error("UserName is required");
                     return RedirectToAction("Login", "Account");
                 }
+
+                
                 var user = await _userManager.FindByNameAsync(model.UserName);
                 if (user != null)
                 {
+                    if (user.LockoutEnabled == false) 
+                    {
+                        _logger.LogInformation($"User {user.Email} is locked out and cannot log in.");
+                        _notyfService.Error("Your account is locked. Please contact support.");
+                        return RedirectToAction("Login", "Account");
+                    }
+
                     var result = await _signInManager.PasswordSignInAsync(user, model.Password, false, lockoutOnFailure: false);
                     if (result.Succeeded)
                     {
@@ -216,7 +232,7 @@ namespace ExpenseTracker.Controllers
                     }
                 }
                 _logger.LogInformation("Utilizatorul nu se poate loga");
-                _notyfService.Error("Eroare U");
+                _notyfService.Error("Error U.");
                 return RedirectToAction("Login", "Account");
             }
             _logger.LogInformation("Modelul nu este valid");
@@ -261,6 +277,7 @@ namespace ExpenseTracker.Controllers
                 user.FirstName = model.FirstName;
                 user.LastName = model.LastName;
                 user.Birthday = model.Birthday;
+                user.ProfileImage = model.ProfileImage;
 
                 var result = await _userManager.UpdateAsync(user);
 

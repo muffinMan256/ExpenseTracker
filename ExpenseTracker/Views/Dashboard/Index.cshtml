@@ -1,255 +1,223 @@
-﻿@model IEnumerable<ExpenseTracker.Data.AppUser>
+﻿@model ExpenseTracker.Models.ViewModel.ViewModelCatTrans
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+
 @{
     ViewData["isDashboard"] = true;
 }
 
+<!-- Shared Styles -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-papKn8l+wzR8dD6jM1A0xRLW6fnWcUwF4OzTgXM1pQ/N5PVhB5ThdwY8hnJhKRqZL9S0r9KLN1YFTFk+7lZCZw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-@*User*@
-@if (User.IsInRole("User"))
-{
-    <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1>Overview</h1>
+<div class="container-fluid py-4">
+    @if (User.IsInRole("User"))
+    {
+        <!-- Hero Section -->
+        <section class="position-relative mb-5" style="height: 400px; overflow: hidden;">
+            <img src="https://picsum.photos/id/1015/1600/400" class="w-100 h-100 object-fit-cover" alt="Hero Image">
+            <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex flex-column justify-content-center align-items-center text-white text-center">
+                <h1 class="display-5 fw-bold">Welcome to ExpenseTracker</h1>
+                <p class="lead mb-4">Track your income and expenses effortlessly.</p>
+            </div>
+        </section>
+
+        <!-- User Hero Dashboard -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card text-white bg-success shadow h-100">
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        <h5 class="card-title">Total Income</h5>
+                        <h3 class="fw-bold">@Model.TotalIncome</h3>
+                    </div>
                 </div>
-                <div class="col-sm-6">
-                    @*Summary Widgets*@
-                    <div class="row mb-4">
-                        @*Income*@
-                        <div class="col-md-4">
-                            <div class="d-flex flew-row widget summary income">
-                                <div class="d-flex flex-column m-auto py-3">
-                                    <span class="lead">Total Income</span>
-                                    <h1 class="display-6 fw-bold">@ViewBag.TotalIncome</h1>
-                                </div>
-                            </div>
-                        </div>
-                        @*Expense*@
-                        <div class="col-md-4">
-                            <div class="d-flex flew-row widget summary expense">
-                                <div class="d-flex flex-column m-auto py-3">
-                                    <span class="lead">Total Expenses</span>
-                                    <h1 class="display-6 fw-bold">@ViewBag.TotalExpense</h1>
-                                </div>
-                            </div>
-                        </div>
-                        @*Balance*@
-                        <div class="col-md-4">
-                            <div class="d-flex flew-row widget summary balance">
-                                <div class="d-flex flex-column m-auto py-3">
-                                    <span class="lead">Balance</span>
-                                    <h1 class="display-6 fw-bold">@ViewBag.Balance</h1>
-                                </div>
-                            </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-danger shadow h-100">
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        <h5 class="card-title">Total Expenses</h5>
+                        <h3 class="fw-bold">@Model.TotalExpenses</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-dark shadow h-100">
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        <h5 class="card-title">Balance</h5>
+                        <h3 class="fw-bold">@Model.Balance</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart & Goal -->
+        <div class="row g-4">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h6 class="mb-0">Monthly Recap</h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="myChart" height="200"></canvas>
+                        <input type="hidden" id="incomeData" value="@Model.TotalIncome" />
+                        <input type="hidden" id="expenseData" value="@Model.TotalExpenses" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h6 class="mb-0">Goal Completion</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-1">Savings <span class="float-end">@Model.Savings</span></p>
+                        <div class="progress">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: 80%"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
-    <section class="content">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Collapsible Card Example</h3>
-                            <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            The body of the card
-                        </div>
+
+     
+
+        <!-- Contact Form -->
+        <div class="card shadow mb-5">
+            <div class="card-header"><h5>Contact Us</h5></div>
+            <div class="card-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="contactName" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="contactName">
                     </div>
-                    <div class="card card-primary">
-                        <div class="card-header">
-                            <h3> Card Title</h3>
-                            <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                    <i class="fa-solid fa-minus"></i>
-                                </button>
-                                <button type="button" class="btn btn-tool" data-card-widget="remove">
-                                    <i class="fa-solid fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="chart">
-                            </div>
-                        </div>
+                    <div class="mb-3">
+                        <label for="contactEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="contactEmail">
                     </div>
-                    <div class="card card-success">
-                        <div class="card-header">
-                            <h3> Card Title</h3>
-                            <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                    <i class="fa-solid fa-minus"></i>
-                                </button>
-                                <button type="button" class="btn btn-tool" data-card-widget="remove">
-                                    <i class="fa-solid fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="chart">
-                            </div>
-                        </div>
+                    <div class="mb-3">
+                        <label for="contactMessage" class="form-label">Message</label>
+                        <textarea class="form-control" id="contactMessage" rows="4"></textarea>
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Collapsible Card Example</h3>
-                            <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            The body of the card
-                        </div>
-                    </div>
-                    <div class="card card-danger">
-                        <div class="card-header">
-                            <h3> Card Title</h3>
-                            <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                    <i class="fa-solid fa-minus"></i>
-                                </button>
-                                <button type="button" class="btn btn-tool" data-card-widget="remove">
-                                    <i class="fa-solid fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="chart">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card card-warning">
-                        <div class="card-header">
-                            <h3> Card Title</h3>
-                            <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                    <i class="fa-solid fa-minus"></i>
-                                </button>
-                                <button type="button" class="btn btn-tool" data-card-widget="remove">
-                                    <i class="fa-solid fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="chart">
-                            </div>
-                        </div>
-                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    }
+
+    @if (User.IsInRole("Admin"))
+    {
+        <!-- Admin Dashboard -->
+        <div class="card shadow">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Admin Dashboard - User Management</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Birthday</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in Model.Users)
+                            {
+                                <tr>
+                                    <td>@user.UserName</td>
+                                    <td>@user.Email</td>
+                                    <td>@user.FirstName</td>
+                                    <td>@user.LastName</td>
+                                    <td>@user.Birthday?.ToShortDateString()</td>
+                                    <td>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input lockout-toggle" type="checkbox" data-user-id="@user.Id" @(user.LockoutEnabled ? "checked" : "")>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <form asp-controller="Admin" asp-action="DeleteUser" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@user.Id" />
+                                            <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                        </form>
+                                        <form asp-controller="Admin" asp-action="UpdateUser" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@user.Id" />
+                                            <button type="submit" class="btn btn-sm btn-secondary"><i class="fas fa-edit"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-    </section>
-}
+        <input type="hidden" id="csrfToken" value="@Antiforgery.GetAndStoreTokens(Context).RequestToken" />
+    }
+</div>
 
-@*Admin*@
-@if (User.IsInRole("Admin"))
-{
-    @*Data Grid*@
-    <div class="container">
-        <div class="row justify-content-center mb-2">
-            <h2 class="text-center">Admin Dashboard</h2>
-        </div>
-        <div class="row justify-content-start">
-            <h4>Users Dashboard</h4>
-        </div>
-    </div>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const income = parseFloat(document.getElementById("incomeData")?.value || 0);
+    const expense = parseFloat(document.getElementById("expenseData")?.value || 0);
 
-
-    <div class="row mt-2">
-        <div class="col-md-12">
-            <div class="table-responsive-sm">
-                <table class="table table-bordered table-hover" style="width:100%">
-                    <thead>
-                    <tr>
-                        <th class="text-center">Username</th>
-                        <th class="text-center">Email</th>
-                        <th class="text-center">First Name</th>
-                        <th class="text-center">Last Name</th>
-                        <th class="text-center">Birthday</th>
-                        <th class="text-center w-25">Status</th>
-                        <th class="text-center">Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td class="text-center">@item.UserName</td>
-                            <td class="text-center">@item.Email</td>
-                            <td class="text-center">@item.FirstName</td>
-                            <td class="text-center">@item.LastName</td>
-                            <td class="text-center">@item.Birthday</td>
-                            <td class="text-center">
-                                @* <div class="form-check form-switch">
-                                        <input min="0" max="1" id="myRange" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>
-                                    <label class="form-check-label" for="flexSwitchCheckChecked">Checked switch checkbox input</label>
-                                    <span id="sliderValue">@item.LockoutEnabled</span>
-                                </div>
-                                <div class="slidecontainer">
-                                    <input type="range" min="0" max="1" value="@item.LockoutEnabled" class="slider" id="myRange" step="1">
-                                </div> *@
-                                <span id="sliderValue">@item.LockoutEnabled</span>
-                            </td>      
-                            <td class="text-center">
-                                    <form asp-controller="Admin" asp-action="DeleteUser" method="post" asp-route-id="@item.Id">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="id" value="@item.Id" />
-                                        <button type="submit" class="btn btn-sm btn-link no-a-decoration" onClick="return confirm('Do you want to delete this record?')">
-                                            <i class="fa-solid fa-trash-can fa-lg text-danger"></i>
-                                        </button>
-                                    </form>
-                                    <form asp-controller="Admin" asp-action="UpdateUser">
-                                        <input type="hidden" name="id" value="@item.Id" />
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-sm btn-link no-a-decoration">
-                                            <i class="fa-solid fa-pen"></i>
-                                        </button>
-                                    </form>
-                            </td>
-                        </tr>
-                    }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        var slider = document.getElementById("myRange");
-        var output = document.getElementById("sliderValue");
-
-        function updateSliderValue() {
-            var value = slider.value;
-            output.innerHTML = value == 1 ? 'User is not locked' : 'User is locked';
-            output.style.color = value == 1 ? 'green' : 'red';
+    const ctx = document.getElementById("myChart").getContext("2d");
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Income', 'Expense'],
+            datasets: [
+                {
+                    label: 'Income',
+                    data: [income, 0],
+                    backgroundColor: '#198754'
+                },
+                {
+                    label: 'Expense',
+                    data: [0, expense],
+                    backgroundColor: '#dc3545'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true },
+                x: { stacked: true }
+            }
         }
+    });
+</script>
 
-        // Display the default slider value
-        updateSliderValue();
+<!-- jQuery & Bootstrap Bundle -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $(".lockout-toggle").on("change", function () {
+            const userId = $(this).data("user-id");
+            const isChecked = $(this).is(":checked");
+            const token = $('#csrfToken').val();
 
-        // Update the slider value and style when the slider handle is dragged
-        slider.oninput = function () {
-            updateSliderValue();
-        }
-
-        // Update the slider value and style when the slider value is changed
-        slider.onchange = function () {
-            updateSliderValue();
-        }
-
-
-        $('.switchItem input[type="checkbox"]').on('change'), function(){
-            alert("Hello checkbox");
-        }
-
-    </script>
-}
+            $.ajax({
+                url: '/Admin/ToggleLockout',
+                type: 'POST',
+                data: JSON.stringify({ id: userId, lockoutEnabled: isChecked }),
+                contentType: 'application/json',
+                headers: { 'RequestVerificationToken': token },
+                success: function (response) {
+                    alert(response.message);
+                },
+                error: function () {
+                    alert("Failed to update lockout status.");
+                }
+            });
+        });
+    });
+</script>

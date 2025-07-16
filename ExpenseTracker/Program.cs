@@ -45,6 +45,14 @@ builder.Services.AddAuthentication(options =>
 
     });
 
+//Session
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(configuration)
@@ -112,9 +120,7 @@ builder.Services.AddMvc(o => {
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
-//Register Syncfusion license
-Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Mgo+DSMBMAY9C3t2U1hhQlJBfV5AQmBIYVp/TGpJfl96cVxMZVVBJAtUQF1hTX5Vd0FjUHtZdHNTQ2ZZ");
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
@@ -142,7 +148,7 @@ using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-    var roles = new[] { "Admin", "User" };
+    var roles = new[] { "Admin", "User", "Manager" };
 
     foreach (var role in roles)
     {

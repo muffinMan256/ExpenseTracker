@@ -65,11 +65,11 @@ namespace ExpenseTracker.Controllers
                 await _context.Categories.AddAsync(newCat);
                 await _context.SaveChangesAsync();
                 _logger.LogInformation($"Categoria cu id-ul {model.CategoryId} numele {model.Title} a fost adaugata");
-                _notyfService.Success("Categoria a fost adaugata cu success.");
+                _notyfService.Success("Category added successfully.");
                 return RedirectToAction(nameof(Index));
             }
 
-            _notyfService.Warning("Atentie! M nu a fost valid.");
+            _notyfService.Warning("Warning! M was not valid.");
             return View(model);
 
         }
@@ -101,10 +101,19 @@ namespace ExpenseTracker.Controllers
                         return NotFound();
                     }
 
-                    existingCategory = _mapper.Map(model, existingCategory);
+                    //existingCategory = _mapper.Map(model, existingCategory);
+                    existingCategory.Title = model.Title;
+                    existingCategory.CreationDate = model.CreationDate;
+                    existingCategory.Icon = model.Icon;
+                    existingCategory.Note = model.Note;
+                    existingCategory.Priority = model.Priority;
+                    existingCategory.Recurring = model.Recurring;
+                    existingCategory.Type = model.Type;
+
+                    _context.Update(existingCategory);
                     await _context.SaveChangesAsync();
                     _logger.LogInformation($"Categoria cu id-ul {model.CategoryId} a fost actualizata");
-                    _notyfService.Success("Categoria a fost actualizata cu success.");
+                    _notyfService.Success("Category updated successfully.");
                     return RedirectToAction("Index");
                 }
                 _notyfService.Warning("A aparut o eroare.");
@@ -118,12 +127,8 @@ namespace ExpenseTracker.Controllers
                 return RedirectToAction("Index");
             }
         }
-        private bool CategoryExists(int id)
-        {
-            return _context.Categories.Any(e => e.CategoryId == id);
-        }
 
-        // DELETE - POST
+        //DELETE - POST
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

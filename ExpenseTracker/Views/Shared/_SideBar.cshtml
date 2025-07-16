@@ -37,34 +37,17 @@
                         </li>
                         <li class="nav-item">
                             <a asp-controller="Category" asp-action="Index" class="nav-link">
-                                <i class="fa-solid fa-list"></i>
+                                <i class="fa-solid fa-bars-staggered"></i>
                                 <p>Categories</p>
                             </a>
                         </li>
                     </ul>
-                </li>
-                <li class="nav-item menu-open">
-                    <a class="nav-link active">
-                        <i class="fa-solid fa-user"></i>
-                        <p>
-                            Account Management
-                            <i class="right fas fa-angle-left"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a asp-controller="Account" asp-action="Update" class="nav-link">
-                                <i class="fa-solid fa-user-gear"></i>
-                                <p>Update Account</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a asp-controller="Account" asp-action="ResetPassword"  class="nav-link">
-                                <i class="fa-solid fa-arrow-rotate-left"></i>
-                                <p>Reset Password</p>
-                            </a>
-                        </li>
-                    </ul>
+                    <li class="nav-item">
+                        <a asp-controller="TaskListAndEventList" asp-action="Index" class="nav-link">
+                        <i class="fa-solid fa-list-check"></i>
+                            <p>To do List</p>
+                        </a>
+                    </li>   
                 </li>
             </ul>
         </nav>

@@ -111,5 +111,35 @@ namespace ExpenseTracker.Controllers
             }
         }
 
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleLockout([FromBody] AppUser model)
+        {
+            var user = await _userManager.FindByIdAsync(model.Id);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "User not found." });
+            }
+
+            user.LockoutEnabled = model.LockoutEnabled;
+            var result = await _userManager.UpdateAsync(user);
+
+            if (result.Succeeded)
+            {
+                return Json(new { success = true, message = "Lockout status updated successfully." });
+            }
+            else
+            {
+                return Json(new { success = false, message = "Error updating lockout status." });
+            }
+        }
+
+
+
+
+
     }
 }

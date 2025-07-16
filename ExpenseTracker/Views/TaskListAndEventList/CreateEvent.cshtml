@@ -1,0 +1,36 @@
+﻿@model ExpenseTracker.Models.ViewModel.ViewModelCatTrans
+
+
+<section>
+    <form asp-action="CreateEvent" asp-controller="TaskListAndEventList" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="row mt-2 justify-content-center">
+                <div class="card card-information">
+                    <div class="card-header">
+                        <h2>Create a new Task</h2>
+                    </div>
+                    <div class="card-body">
+                        @*Row1*@
+                        <div class="row">
+                            @* Event Name *@
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="Amount" class="col-form-label small font-w-700 dark-color m-0px">Name</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control text-box single-line" asp-for="Events.EventName" placeholder="Enter event name" required />
+                                    </div>
+                                    <span asp-validation-for="Events.EventName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <input type="hidden" asp-for="UserId" />
+                            @*Create Button*@
+                            <div class="d-flex">
+                                <button class="btn btn-success btn-sm w-auto">Create your Task</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+    </form>
+</section>

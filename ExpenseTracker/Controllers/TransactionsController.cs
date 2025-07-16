@@ -37,39 +37,56 @@ namespace ExpenseTracker.Controllers
 
 
         // INDEX - GET
+        //public async Task<IActionResult> Index()
+        //{
+        //    var user = await _userManager.GetUserAsync(User);
+        //    var transactions = await _context.Transactions.Where(t => t.UserId == user.Id).ToListAsync();
+        //    return View(transactions);
+        //}
+
         public async Task<IActionResult> Index()
         {
-            var transactions = await _context.Transactions.ToListAsync();
+            var user = await _userManager.GetUserAsync(User);
+            var transactions = await _context.Transactions
+                .Where(t => t.UserId == user.Id)
+                .Include(t => t.Category) 
+                //.Include(t=>t.Category.Icon )
+                .ToListAsync();
+
             return View(transactions);
         }
-
 
 
         // CREATE - GET
         public async Task<IActionResult> Create()
         {
+            var user = await _userManager.GetUserAsync(User);
             List<ExpenseTracker.Models.CategoryModel> categories = await _context.Categories.ToListAsync();
-            List<Transaction> transactions = new List<Transaction>();
+            //List<TransactionModel> transactions = new List<DbLoggerCategory.Database.Transaction>();
             ViewModelCatTrans ctvm = new ViewModelCatTrans()
             {
                 CategoriesList = categories,
-                TransactionsList = transactions
+                //TransactionsList = transactions,
+                UserId = user.Id
+                
             };
 
             return View(ctvm);
         }
-        // CREATE - Post
+        // CREATE - POST
         [HttpPost]
         public async Task<IActionResult> Create(ViewModelCatTrans model)
         {
+            ModelState.Remove("Transactions.Category");
             if (ModelState.IsValid)
             {
                 var transaction = new TransactionModel()
                 {
+                    UserId = model.UserId,
                     CategoryId = model.Transactions.CategoryId,
                     Amount = model.Transactions.Amount,
                     Note = model.Transactions.Note,
-                    Date = model.Transactions.Date
+                    Date = model.Transactions.Date,
                 };
 
                 await _context.Transactions.AddAsync(transaction);
@@ -83,24 +100,93 @@ namespace ExpenseTracker.Controllers
             return View(model);
         }
 
-
-
-        // EDIT - GET
+        //EDIT - GET
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
             var transaction = await _context.Transactions.FindAsync(id);
             if (transaction == null)
             {
+                _logger.LogInformation("Transaction not found");
+                _notyfService.Error("Error T");
                 return NotFound();
             }
 
-            var model = _mapper.Map<TransactionModel>(transaction);
-            return View(model);
+            List<CategoryModel> categories = await _context.Categories.ToListAsync();
+            ViewModelCatTrans ctvm = new ViewModelCatTrans
+            {
+                CategoriesList = categories,
+                Transactions = new Models.TransactionModel()
+                {
+                    TransactionId = transaction.TransactionId,
+                    Amount = transaction.Amount,
+                    Note = transaction.Note,
+                    Date = transaction.Date,
+                    CategoryId = transaction.CategoryId // Initialize the CategoryId
+                },
+                Categories = new CategoryModel { CategoryId = transaction.CategoryId } // Ensure this is initialized
+            };
+
+            return View(ctvm);
         }
 
 
+        //EDIT - POST
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(ViewModelCatTrans model, int id)
+        {
+            try
+            {
+                var transaction = await _context.Transactions.FindAsync(id);
+                ModelState.Remove("UserId");
+                ModelState.Remove("Categories.Icon");
+                ModelState.Remove("Categories.Type");
+                ModelState.Remove("Categories.Title");
+                ModelState.Remove("Categories.Priority");
+                ModelState.Remove("Categories.Recurring");
+                ModelState.Remove("Transactions.CategoryId");
+                ModelState.Remove("Transactions.UserId");
+                ModelState.Remove("Transactions.Category");
+                if (ModelState.IsValid)
+                {
 
+                    if (transaction == null)
+                    {
+                        _logger.LogInformation("Transaction not found");
+                        _notyfService.Error("Error T");
+                        return NotFound();
+                    }
+
+                    transaction.Amount = model.Transactions.Amount;
+                    transaction.Note = model.Transactions.Note;
+                    transaction.Date = model.Transactions.Date;
+                    transaction.CategoryId = model.Categories.CategoryId;
+
+                    _context.Update(transaction);
+                    await _context.SaveChangesAsync();
+
+                    _notyfService.Success("Transaction updated successfully");
+                    return RedirectToAction("Index");
+                }
+
+                _notyfService.Warning("A aparut o eroare.");
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!TransactionExists(model.Transactions.TransactionId))
+                {
+                    return NotFound();
+                }
+                throw;
+            }
+            model.CategoriesList = await _context.Categories.ToListAsync();
+            return View(model);
+        }
+        private bool TransactionExists(int id)
+        {
+            return _context.Transactions.Any(e => e.TransactionId == id);
+        }
 
         //DELETE - POST
         [HttpPost, ActionName("Delete")]
@@ -129,6 +215,11 @@ namespace ExpenseTracker.Controllers
             }
         }
 
-}
+
+
+
+
+
+    }
 }
 

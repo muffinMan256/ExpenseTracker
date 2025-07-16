@@ -1,0 +1,72 @@
+﻿.profile-container {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    float: right;
+}
+
+/* Container for the entire menu */
+.menu {
+    display: none;
+    position: absolute;
+    top: 100%; /* Aligns the menu below the trigger */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 100;
+    min-width: 200px; /* Ensures the menu has a minimum width */
+}
+
+    /* Styling for the unordered list within the menu */
+    .menu ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 10px 0;
+    }
+
+        /* Each list item within the menu */
+        .menu ul li {
+            padding: 10px 20px;
+            text-align: left; /* Align text to the left */
+            display: flex;
+            align-items: center;
+        }
+
+            /* Anchor tags and buttons within list items */
+            .menu ul li a,
+            .menu ul li button {
+                text-decoration: none;
+                color: #333;
+                width: 100%; /* Makes sure items take up the full width of the menu */
+                background: none;
+                border: none;
+                padding: 10px 0;
+                text-align: left; /* Align text to the left */
+                display: flex;
+                align-items: center;
+            }
+
+                /* Icon and text alignment */
+                .menu ul li a i,
+                .menu ul li button i {
+                    margin-right: 10px; /* Adds space between icon and text */
+                }
+
+            /* Hover effect on list items */
+            .menu ul li:hover {
+                background-color: #f1f1f1;
+            }
+
+/* Show menu on hover */
+.profile-container:hover .menu {
+    display: block;
+}

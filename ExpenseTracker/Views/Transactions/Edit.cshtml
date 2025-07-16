@@ -1,1 +1,78 @@
-﻿
+﻿@model ExpenseTracker.Models.ViewModel.ViewModelCatTrans
+
+<section>
+    <form asp-action="Edit" asp-controller="Transactions" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row mt-2 justify-content-center">
+            <div class="card card-information">
+                <div class="card-header">
+                    <h2>Update Transaction</h2>
+                </div>
+                <div class="card-body">
+                    @*Row1*@
+                    <div class="row">
+                        @* Category with Icon *@
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-form-label small font-w-700 dark-color m-0px">Category</label>
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text"><i class="fa-solid fa-layer-group"></i></span>
+                                    <select class="form-control text-box single-line" asp-for="Categories.CategoryId" required>
+                                        <option value="">Select Category</option>
+                                        @foreach (var item in Model.CategoriesList)
+                                        {
+                                            <option value="@item.CategoryId">@item.TitleWithIcon</option>
+                                        }
+                                    </select>
+                                </div>
+                                <span asp-validation-for="Categories.CategoryId" class="text-danger"></span>
+                            </div>
+                        </div>
+                        @* Amount *@
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="Amount" class="col-form-label small font-w-700 dark-color m-0px">Amount</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-dollar-sign"></i></span>
+                                    <input type="text" class="form-control text-box single-line" id="Amount" asp-for="Transactions.Amount" placeholder="Transactions.Amount" required />
+                                </div>
+                                <span asp-validation-for="Transactions.Amount" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                    </div>
+                    @*Row2*@
+                    <div class="row">
+                        @*Note*@
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="Note" class="col-form-label small font-w-700 dark-color m-0px">Note</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-pen"></i></span>
+                                    <input type="text" class="form-control text-box single-line" id="Note" asp-for="Transactions.Note" required />
+                                </div>
+                                <span asp-validation-for="Transactions.Note" class="text-danger"></span>
+                            </div>
+                        </div>
+                        @*Transaction creation Date*@
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="Date" class="col-form-label small font-w-700 dark-color m-0px">Date</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-calendar"></i></span>
+                                    <input type="date" class="form-control text-box single-line" asp-for="Transactions.Date" required />
+                                </div>
+                                <span asp-validation-for="Transactions.Date" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" asp-for="UserId" />
+                    @*Create Button*@
+                    <div class="d-flex">
+                        <button class="btn btn-success btn-sm w-auto">Update your Transaction</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</section>

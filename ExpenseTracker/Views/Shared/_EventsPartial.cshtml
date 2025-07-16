@@ -1,0 +1,86 @@
+﻿@using Microsoft.IdentityModel.Tokens
+@model IEnumerable<ExpenseTracker.Models.ViewModel.ViewModelCatTrans>
+
+<style>
+    .event-highlight {
+        color: white;
+        font-weight: bold;
+        background-color: #007bff; 
+        border-radius: 5px;
+        padding: 10px 15px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        display: inline-block; 
+        text-align: center;
+    }
+
+    ul.list-group {
+        list-style-type: none;
+        padding-left: 0; 
+    }
+
+    .event-highlight:hover {
+        background-color: #0056b3; 
+    }
+
+    .fixed-height-card .card-body {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+</style>
+
+
+<div class="modal-header">
+    <h5 class="modal-title">Title</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <div class="card fixed-height-card">
+        <div class="card-header">
+            <h4>Event List</h4>
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                @if (!Model.Any())
+                {
+                    <li>No events.</li>
+                }
+                else
+                {
+                    @foreach (var eventItem in Model)
+                    {
+                        <li class="event-highlight" draggable="true" ondragstart="event.dataTransfer.setData('text', '@eventItem.Events.EventName')">
+                            @eventItem.Events.EventName
+                        </li>
+                    }
+                }
+            </ul>
+        </div>
+
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    <button type="submit" class="btn btn-primary">Save</button>
+</div>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var dropzone = document.getElementById('calendar-dropzone');
+    
+        dropzone.addEventListener('dragover', function(event) {
+            event.preventDefault(); // Allow the drop
+        });
+
+        dropzone.addEventListener('drop', function(event) {
+            event.preventDefault();
+            var eventName = event.dataTransfer.getData('text');
+            var newEvent = document.createElement('div');
+            newEvent.innerHTML = eventName;
+            newEvent.classList.add('event-highlight');
+            dropzone.appendChild(newEvent); // Add event to calendar
+        });
+    });
+</script>

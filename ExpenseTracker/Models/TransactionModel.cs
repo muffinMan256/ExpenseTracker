@@ -27,7 +27,11 @@ namespace ExpenseTracker.Models
         public DateTime Date { get; set; } = DateTime.Now;
 
         [Required(ErrorMessage = "This field is mandatory!")]
-        public Category? Category {get; set; }
+        public CategoryModel? Category {get; set; }
+
+        [Required]
+        [Column(TypeName = "nvarchar(450)")]
+        public string UserId { get; set; }
 
     }
 }

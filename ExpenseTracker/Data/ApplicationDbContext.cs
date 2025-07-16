@@ -12,6 +12,11 @@ namespace ExpenseTracker.Data
 
         }
 
+        public DbSet<TaskModel> TaskList { get; set; }
+
+        public DbSet<EventModel> EventList { get; set; }
+
+
         public DbSet<TransactionModel> Transactions { get; set; }
         public DbSet<CategoryModel> Categories { get; set; }
 

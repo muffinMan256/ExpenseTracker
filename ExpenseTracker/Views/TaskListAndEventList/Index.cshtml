@@ -1,0 +1,167 @@
+﻿@using Microsoft.IdentityModel.Tokens
+@model ExpenseTracker.Models.ViewModel.ViewModelCatTrans.PaginatedList<ExpenseTracker.Models.ViewModel.ViewModelCatTrans>
+
+@{
+    ViewData["isDashboard"] = true;
+}
+
+@if (User.IsInRole("User"))
+{
+    <div class="container-fluid py-4">
+
+       
+        @*Row with Create Buttons*@
+        <div class="row mt-2">
+            <div class="d-flex justify-content-between w-100">
+                <form asp-action="Create" method="get">
+                    <button class="btn btn-warning mt-2" data-bs-toggle="modal" data-bs-target="#newTaskModal">
+                        <i class="fa-solid fa-square-plus"></i> &nbsp; New Task
+                    </button>
+                </form>
+                <form asp-action="CreateEvent" method="get">
+                    <button class="btn btn-warning mt-2" data-bs-toggle="modal" data-bs-target="#newTaskModal">
+                        New Event &nbsp; <i class="fa-solid fa-square-plus"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Task List Card -->
+        <div class="row">
+            <div class="col-lg-8 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Tasks</h5>
+                        <form method="get" class="d-flex">
+                            <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]"
+                                   class="form-control form-control-sm me-2" placeholder="Search tasks" />
+                            <button type="submit" class="btn btn-sm btn-outline-primary">Search</button>
+                        </form>
+                    </div>
+                    <div class="card-body fixed-height-card overflow-auto p-0">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-center">@Html.ActionLink("Task", "Index", new { sortOrder = ViewBag.Sort1Parm })</th>
+                                    <th class="text-center">@Html.ActionLink("Priority", "Index", new { sortOrder = ViewBag.Sort2Parm })</th>
+                                    <th class="text-center">@Html.ActionLink("Date", "Index", new { sortOrder = ViewBag.Sort3Parm })</th>
+                                    <th class="text-center">@Html.ActionLink("Status", "Index", new { sortOrder = ViewBag.Sort4Parm })</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td class="text-center">@item.Tasks.TaskName</td>
+                                        <td class="text-center">
+                                            <span class="badge bg-@(item.Tasks.TaskPriority == "High" ? "danger" : item.Tasks.TaskPriority == "Medium" ? "warning" : "secondary")">
+                                                @item.Tasks.TaskPriority
+                                            </span>
+                                        </td>
+                                        <td class="text-center">@item.Tasks.TaskDate.ToShortDateString()</td>
+                                        <td class="text-center">
+                                            <input type="checkbox" class="form-check-input" disabled @(item.Tasks.TaskStatus ? "checked" : "") />
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group">
+                                                <a asp-action="EditTask" asp-route-id="@item.Tasks.ListId" class="btn btn-sm btn-outline-warning">
+                                                    <i class="fa-solid fa-pen"></i>
+                                                </a>
+                                                <form asp-action="Delete" asp-controller="TaskListAndEventList"
+                                                      asp-route-id="@item.Tasks.ListId" method="post" class="d-inline delete-form">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger delete-btn">
+                                                        <i class="fa-solid fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between align-items-center">
+                        <div>
+                            <a asp-action="Index" asp-route-pageNumber="@(Model.PageIndex - 1)"
+                               class="btn btn-sm btn-outline-secondary @(Model.HasPreviousPage ? "" : "disabled")">Prev</a>
+                            <a asp-action="Index" asp-route-pageNumber="@(Model.PageIndex + 1)"
+                               class="btn btn-sm btn-outline-secondary @(Model.HasNextPage ? "" : "disabled")">Next</a>
+                        </div>
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0">
+                                @for (int i = 1; i <= Model.TotalPages; i++)
+                                {
+                                    <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                                        <a class="page-link" asp-action="Index" asp-route-pageIndex="@i">@i</a>
+                                    </li>
+                                }
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Events Panel -->
+            <div class="col-lg-4 mb-4">
+                @await Html.PartialAsync("_EventsPartial", ViewData["EventsViewModel"])
+            </div>
+        </div>
+
+        <!-- Modals -->
+        <div class="modal fade" id="newTaskModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">@* Loaded via AJAX *@</div>
+            </div>
+        </div>
+        <div class="modal fade" id="newEventModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">@* Loaded via AJAX *@</div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Styles {
+    <style>
+        .fixed-height-card {
+            height: 400px !important;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Delete confirmation
+            document.querySelectorAll('.delete-btn').forEach(btn =>
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const form = this.closest('.delete-form');
+                    Swal.fire({
+                        title: 'Delete this task?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes',
+                        reverseButtons: true
+                    }).then(result => {
+                        if (result.isConfirmed) form.submit();
+                    });
+                })
+            );
+
+            // Load modals via AJAX
+            $('[data-bs-toggle="modal"]').on('click', function () {
+                const targetModal = $(this).data('bs-target');
+                if (targetModal === '#newTaskModal') {
+                    $('#newTaskModal .modal-content').load('@Url.Action("Create", "TaskListAndEventList")');
+                } else if (targetModal === '#newEventModal') {
+                    $('#newEventModal .modal-content').load('@Url.Action("CreateEvent", "TaskListAndEventList")');
+                }
+            });
+        });
+    </script>
+}

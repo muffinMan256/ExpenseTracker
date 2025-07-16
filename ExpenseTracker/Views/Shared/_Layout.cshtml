@@ -11,16 +11,23 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/css/dataTables.bootstrap.min.css" integrity="sha512-BMbq2It2D3J17/C7aRklzOODG1IQ3+MHw3ifzBHMBwGO/0yUqYmsStgBjI0z5EYlaDEFnvYV7gNYdD3vFLRKsA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/profileImage.css" asp-append-version="true" />
     <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
     <script src="https://cdn.syncfusion.com/ej2/26.1.35/dist/ej2.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.0.2/main.min.css" rel="stylesheet" />
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js" integrity="sha512-BkpSL20WETFylMrcirBahHfSnY++H2O1W+UnEEO4yNIl+jI2+zowyoGJpbtk6bx97fBXf++WJHSSK2MV4ghPcg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @RenderSection("Styles", required: false)
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-sweetalert/1.0.1/sweetalert.min.js" integrity="sha512-MqEDqB7me8klOYxXXQlB4LaNf9V9S0+sG1i8LtPOYmHqICuEZ9ZLbyV3qIfADg2UJcLyCm4fawNiFvnYbcBJ1w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
-<body class="e-bigger">
+<body class="e-bigger sidebar-expanded">
 
 <partial name="_SideBar"/>
+
+<!-- Overlay for closing the sidebar when clicked -->
+<div class="sidebar-overlay"></div>
 
 <div class="dock-target">
         <!-- Navbar -->
@@ -34,17 +41,45 @@
                     <a asp-controller="Dashboard" asp-action="Index" class="nav-link"><i class="fas fa-home"></i></a>
                 </li>
             </ul>
-            <div class="info mt-1 ml-auto">
-                <a class="d-block">@User.Identity.Name</a>
+
+            <!-- Right navbar links -->
+            <div class="ml-auto d-flex align-items-center">
+                <div class="profile-container">
+                    <img src="/defaultUser.svg" alt="Profile Image" class="profile-image">
+                    <div class="menu">
+                        <ul>
+                            <li>
+                                <a asp-controller="Account" asp-action="Update" class="nav-link">
+                                    <span>Edit Account</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a asp-controller="Account" asp-action="ResetPassword" class="nav-link">
+                                    <span>Reset Password</span>
+                                </a>
+                            </li>
+                            <li>
+                                @if (User.Identity != null && User.Identity.IsAuthenticated)
+                                {
+                                    <form asp-controller="Account" asp-action="Logout">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-light">
+                                            <i class="fa-solid fa-sign-out-alt"></i>
+                                            <span>Logout</span>
+                                        </button>
+                                    </form>
+                                }
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="info ml-3">
+                    <a class="d-block">Hello, @User.Identity.Name!</a>
+                </div>
             </div>
-            @if (User.Identity != null && User.Identity.IsAuthenticated)
-            {
-                <form asp-controller="Account" asp-action="Logout" class="mx-2">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-danger">Logout</button>
-                </form>
-            }
         </nav>
+
         <!-- /.navbar -->
         <div class="main-content">
             <div class="container mt-5">
@@ -87,8 +122,26 @@
 <script src="~/js/site.js" asp-append-version="true"></script>
 <script src="lib/admin-lte/js/adminlte.min.js"></script>
 <script src="lib/admin-lte/js/adminlte.min.js.map"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebarToggle = document.querySelector('[data-widget="pushmenu"]');
+            const body = document.body;
+            const sidebarOverlay = document.querySelector('.sidebar-overlay'); // Get overlay element
+
+            // Toggle sidebar and overlay visibility
+            sidebarToggle.addEventListener('click', function () {
+                body.classList.toggle('sidebar-expanded'); // Add/remove the 'sidebar-expanded' class
+            });
+
+            // Close sidebar when clicking on the overlay
+            sidebarOverlay.addEventListener('click', function () {
+                body.classList.remove('sidebar-expanded'); // Close the sidebar
+            });
+        });
+    </script>
+
+
 @await Component.InvokeAsync("Notyf")
 @await RenderSectionAsync("Scripts", required: false)
-<ejs-scripts></ejs-scripts>
 </body>
 </html>
